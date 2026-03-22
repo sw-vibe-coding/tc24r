@@ -41,4 +41,6 @@ pub enum Stmt {
     Break,
     Continue,
     Asm(String),
+    /// Inline block (for multi-declarations: int x, y;)
+    Block(Block),
 }

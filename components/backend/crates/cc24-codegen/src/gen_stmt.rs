@@ -45,5 +45,10 @@ pub fn gen_stmt(stmt: &Stmt, state: &mut CodegenState) {
         Stmt::Break => cc24_stmt_simple::gen_break(state),
         Stmt::Continue => cc24_stmt_simple::gen_continue(state),
         Stmt::Asm(text) => cc24_stmt_simple::gen_asm(state, text),
+        Stmt::Block(block) => {
+            for s in &block.stmts {
+                gen_stmt(s, state);
+            }
+        }
     }
 }

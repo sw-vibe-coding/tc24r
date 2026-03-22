@@ -6,15 +6,15 @@ The approach is inspired by [chibicc](https://github.com/rui314/chibicc), a smal
 
 ## Project Status
 
-The compiler is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 12 working demos exercise all implemented features including functions, recursion, pointers, arrays, MMIO, interrupts, and a preprocessor.
-
-See [docs/status.md](docs/status.md) for detailed status and test counts.
+The compiler is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 14 components, ~50 crates, 17 demos all passing. See [docs/status.md](docs/status.md) for detailed status and test counts.
 
 ### What Works
 
 - Types: int (24-bit), char (8-bit), void, pointers, arrays
 - All standard C operators with correct precedence
-- Control flow: if/else, while, do...while, for
+- Control flow: if/else, while, do...while, for, break, continue
+- Ternary operator (? :), character literals, multi-declaration
+- Prefix/postfix increment and decrement (++i, i--)
 - Functions with multiple parameters, recursion, ISR support
 - Globals, string constants, hex literals
 - Pointer arithmetic with element-size scaling
@@ -25,8 +25,8 @@ See [docs/status.md](docs/status.md) for detailed status and test counts.
 
 ### What Does Not Work Yet
 
-- switch/case, break, continue
-- ++, --, +=, and other compound assignment
+- switch/case
+- +=, -=, and other compound assignment
 - sizeof, typedef, enum, struct, union
 - Function prototypes (forward declarations)
 - Multi-file compilation
@@ -43,32 +43,27 @@ See [docs/status.md](docs/status.md) for detailed status and test counts.
 
 ## Component Structure
 
-The compiler is organized into 4 components with 14 crates:
+The compiler is organized into 14 components with ~50 crates, each component
+being its own Cargo workspace under `components/`:
 
-```
-components/
-  core/           -- shared types (AST, tokens, spans, errors)
-    cc24-ast
-    cc24-error
-    cc24-span
-    cc24-token
-  frontend/       -- preprocessing, lexing, parsing
-    cc24-lexer
-    cc24-lexer-tests
-    cc24-parser
-    cc24-parser-tests
-    cc24-parse-stream
-    cc24-preprocess
-    cc24-preprocess-tests
-  backend/        -- code generation and validation
-    cc24-codegen
-    cc24-codegen-tests
-    cc24-codegen-validate
-  cli/            -- compiler binary
-    cc24
-```
+| Component | Purpose |
+|-----------|---------|
+| core | Shared types: AST, tokens, spans, errors, traits |
+| frontend | Preprocessing, lexing, parsing |
+| backend | Legacy codegen and validation |
+| codegen-emit | Assembly emission (core, data, load/store) |
+| codegen-expr | Expression codegen (call, literal, ops, pointer, variable) |
+| codegen-ops | Operator codegen (arithmetic, bitwise, compare, divmod, incdec, logical, unary, type-infer) |
+| codegen-state | Codegen state management |
+| codegen-stmt | Statement codegen (control flow, simple statements) |
+| codegen-structure | Function structure (ISR, locals, prologue) |
+| config | Configuration and target definition |
+| dispatch | Codegen dispatch layer |
+| macros | Proc macros (asm-dsl, emit-macros, handler-macros) |
+| testing | Test harnesses (as24, compile, cor24, golden) |
+| cli | CLI binary entry point |
 
-Each component is its own Cargo workspace. See [docs/architecture.md](docs/architecture.md) for data flow and design constraints.
+See [docs/architecture.md](docs/architecture.md) for data flow and design constraints.
 
 ## Building
 
@@ -116,28 +111,116 @@ cargo run -- run path/to/program.s
 
 ## Demos
 
-12 demos in `demos/`, each with a run script:
+17 demos in `demos/`, all PASS on the cor24-rs emulator:
 
-| Demo | Features |
-|------|----------|
-| demo.c | Globals, function calls, recursion, if/else, while, for |
-| demo2.c | char, pointers, casts, MMIO (LED, UART TX) |
-| demo3.c | Hex literals, pointer arithmetic, string constants |
-| demo4.c | Software division and modulo |
-| demo5.c | Arrays (declaration and indexing) |
-| demo6.c | Global char/pointer, .byte/.word emission |
-| demo7.c | Pointer subtraction with scaling |
-| demo8.c | Preprocessor #define |
-| demo9.c | Interrupt attribute, ISR, UART RX interrupt |
-| demo10.c | #include, #pragma once, -I flag |
-| demo11.c | Logical && and || with short-circuit |
-| demo12.c | do...while loop |
+| # | Demo | Features Tested | Status |
+|---|------|-----------------|--------|
+| 1 | demo.c | Globals, function calls, recursion, if/else, while, for | PASS |
+| 2 | demo2.c | char, pointers, casts, MMIO (LED, UART TX) | PASS |
+| 3 | demo3.c | Hex literals, pointer arithmetic, string constants | PASS |
+| 4 | demo4.c | Software division and modulo | PASS |
+| 5 | demo5.c | Arrays (declaration and indexing) | PASS |
+| 6 | demo6.c | Global char/pointer, .byte/.word emission | PASS |
+| 7 | demo7.c | Pointer subtraction with scaling | PASS |
+| 8 | demo8.c | Preprocessor #define | PASS |
+| 9 | demo9.c | Interrupt attribute, ISR, UART RX interrupt | PASS |
+| 10 | demo10.c | #include, #pragma once, -I flag | PASS |
+| 11 | demo11.c | Logical && and || with short-circuit | PASS |
+| 12 | demo12.c | do...while loop | PASS |
+| 13 | demo13.c | break, continue (while, do...while, for) | PASS |
+| 14 | demo14.c | Prefix/postfix ++, -- | PASS |
+| 15 | demo15.c | Ternary operator (? :) | PASS |
+| 16 | demo16.c | Character literals ('a', '\n', '\\') | PASS |
+| 17 | demo17.c | Multi-declaration (int x, y, z;) | PASS |
 
 Run a demo:
 
 ```bash
 demos/run-demo.sh     # runs demo.c through cc24 and cor24-rs
 ```
+
+## chibicc Test Compatibility
+
+chibicc coverage: **0/41 (0%)**
+
+Testing against the 41 test files from [chibicc](https://github.com/rui314/chibicc).
+0 currently compile. Status and first blocker for each file listed below.
+
+### Out of Scope (7)
+
+These tests require hosted C features, FPU, or threading not applicable to
+a freestanding 24-bit target:
+
+| Test | Reason |
+|------|--------|
+| alloca | Requires alloca() runtime |
+| atomic | Requires _Atomic / hosted threading |
+| float | Requires FPU (COR24 has no FPU) |
+| stdhdr | Requires hosted standard headers |
+| tls | Requires _Thread_local / OS threads |
+| varargs | Requires va_list / stdarg.h runtime |
+| vla | Requires variable-length array runtime |
+
+### Compile Fail (34)
+
+| Test | First Blocker |
+|------|---------------|
+| alignof | Missing _Alignof keyword |
+| arith | Large int literals (overflow 24-bit) |
+| asm | GNU asm syntax (extended asm) |
+| attribute | Missing __attribute__ keyword |
+| bitfield | Missing struct |
+| builtin | Missing __builtin functions |
+| cast | Statement expressions ({...}) |
+| commonsym | Missing static/extern keywords |
+| compat | Missing struct |
+| complit | Compound literals |
+| const | Missing const keyword |
+| constexpr | Missing constexpr keyword |
+| control | Missing switch/case |
+| decl | Missing static/extern keywords |
+| enum | Missing enum keyword |
+| extern | Missing extern keyword |
+| function | Missing static keyword |
+| generic | Missing _Generic keyword |
+| initializer | Missing struct |
+| line | Missing __LINE__ / __FILE__ |
+| literal | Large int literals (overflow 24-bit) |
+| macro | Missing system headers |
+| offsetof | Missing struct |
+| pointer | Statement expressions ({...}) |
+| pragma-once | Missing system headers |
+| sizeof | Missing sizeof keyword |
+| string | Missing sizeof keyword |
+| struct | Missing struct keyword |
+| typedef | Missing typedef keyword |
+| typeof | Missing typeof keyword |
+| unicode | Unicode literals |
+| union | Missing union keyword |
+| usualconv | Missing sizeof keyword |
+| variable | Statement expressions ({...}) |
+
+### Blockers Fixed
+
+- Ternary operator `? :` -- was blocking 8 tests (arith, control, sizeof, etc.)
+- Character literals `'a'`, `'\n'` -- was blocking literal.c, complit.c
+- Multi-declaration `int x, y;` -- was blocking variable.c
+- Hex literals `0xFF` -- was blocking MMIO patterns
+- Logical `&&` / `||` -- was blocking complex conditionals
+- `break` / `continue` -- was blocking loop tests
+- `++` / `--` -- was blocking for-loop increment patterns
+
+### Remaining Blockers (by impact)
+
+| Blocker | Tests Affected | Effort |
+|---------|---------------|--------|
+| Statement expressions `({ })` | 6 tests | Medium (GCC extension) |
+| `struct` / `union` / `.` access | 10 tests | Large |
+| `static` / `extern` keywords | 3 tests | Small |
+| `sizeof` operator | 3 tests | Small |
+| `typedef` / `enum` | 3 tests | Small-Medium |
+| Large int literals (>24-bit) | 2 tests | Out of scope (24-bit target) |
+| Missing system headers | 6 tests | Out of scope (freestanding) |
 
 ## Documentation
 
@@ -164,7 +247,7 @@ demos/run-demo.sh     # runs demo.c through cc24 and cor24-rs
 
 ## Tests
 
-54 active tests across all components:
+Tests across all components:
 
 ```bash
 # Run all tests (build-all.sh runs tests too)

@@ -43,6 +43,9 @@ pub fn collect_locals_stmt(state: &mut CodegenState, stmt: &Stmt) {
             }
             collect_locals_block(state, &body.stmts);
         }
+        Stmt::Block(block) => {
+            collect_locals_block(state, &block.stmts);
+        }
         _ => {}
     }
 }

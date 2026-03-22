@@ -53,6 +53,16 @@ fn parse_char_local() {
 }
 
 #[test]
+fn parse_multi_decl() {
+    // Regression test: multi-declaration must NOT put semicolon
+    // expect inside parse_one_declarator (would fail on comma).
+    let program = parse_source("int main() { int x = 1, y = 2; return x + y; }");
+    let stmts = &program.functions[0].body.stmts;
+    // Multi-decl wraps in Stmt::Block
+    assert!(matches!(&stmts[0], Stmt::Block(_)));
+}
+
+#[test]
 fn parse_array_decl() {
     let program = parse_source("int main() { int a[3]; return 0; }");
     let stmts = &program.functions[0].body.stmts;

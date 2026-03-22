@@ -64,8 +64,33 @@ fn parse_return(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
 
 pub fn parse_local_decl(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     let base_ty = parse_type(ts)?;
+    let first = parse_one_declarator(ts, base_ty.clone())?;
+    // Check for comma-separated additional declarators
+    if !ts.check(&TokenKind::Comma) {
+        ts.expect(TokenKind::Semicolon)?;
+        return Ok(first);
+    }
+    let mut stmts = vec![first];
+    while ts.eat(TokenKind::Comma) {
+        stmts.push(parse_one_declarator(ts, base_ty.clone())?);
+    }
+    ts.expect(TokenKind::Semicolon)?;
+    Ok(Stmt::Block(Block { stmts }))
+}
+
+/// Parse a single variable declarator (name, optional array suffix,
+/// optional initializer). Does NOT consume a trailing semicolon --
+/// the caller (parse_local_decl) handles that after all declarators
+/// are parsed. This separation is critical for multi-declarations
+/// like `int x = 1, y = 2;` where commas separate declarators.
+fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, CompileError> {
+    // Handle pointer stars on each declarator: int *p, *q;
+    let mut ty = base_ty;
+    while ts.eat(TokenKind::Star) {
+        ty = Type::Ptr(Box::new(ty));
+    }
     let name = ts.expect_ident()?;
-    // Check for array: int a[N];
+    // Check for array: int a[N]
     let ty = if ts.eat(TokenKind::LBracket) {
         let TokenKind::IntLit(size) = ts.peek().kind else {
             return Err(CompileError::new(
@@ -75,15 +100,14 @@ pub fn parse_local_decl(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
         };
         ts.advance();
         ts.expect(TokenKind::RBracket)?;
-        Type::Array(Box::new(base_ty), size as usize)
+        Type::Array(Box::new(ty), size as usize)
     } else {
-        base_ty
+        ty
     };
     let init = if ts.eat(TokenKind::Assign) {
         Some(parse_expr(ts)?)
     } else {
         None
     };
-    ts.expect(TokenKind::Semicolon)?;
     Ok(Stmt::LocalDecl { name, ty, init })
 }
