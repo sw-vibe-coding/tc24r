@@ -2,5 +2,6 @@
 members = [
     "crates/cc24-codegen",
     "crates/cc24-codegen-tests",
+    "crates/cc24-codegen-validate",
 ]
 resolver = "3"

@@ -2,7 +2,7 @@
 
 use cc24_ast::{Function, Stmt};
 
-use crate::Codegen;
+use crate::{Codegen, runtime};
 
 impl Codegen {
     pub(crate) fn gen_function(&mut self, func: &Function) {
@@ -21,13 +21,22 @@ impl Codegen {
 
         self.emit(&format!("        .globl  _{}", func.name));
         self.emit(&format!("_{}:", func.name));
-        self.emit_prologue();
+
+        if func.is_interrupt {
+            runtime::emit_isr_prologue(self);
+        } else {
+            self.emit_prologue();
+        }
 
         for stmt in &func.body.stmts {
             self.gen_stmt(stmt);
         }
 
-        self.emit_epilogue();
+        if func.is_interrupt {
+            runtime::emit_isr_epilogue(self);
+        } else {
+            self.emit_epilogue();
+        }
     }
 
     fn emit_prologue(&mut self) {
@@ -35,13 +44,7 @@ impl Codegen {
         self.emit("        push    r2");
         self.emit("        push    r1");
         self.emit("        mov     fp,sp");
-        if self.locals_size > 0 {
-            if self.locals_size <= 127 {
-                self.emit(&format!("        add     sp,-{}", self.locals_size));
-            } else {
-                self.emit(&format!("        sub     sp,{}", self.locals_size));
-            }
-        }
+        self.emit_locals_alloc();
     }
 
     fn emit_epilogue(&mut self) {
@@ -52,6 +55,16 @@ impl Codegen {
         self.emit("        pop     r2");
         self.emit("        pop     fp");
         self.emit("        jmp     (r1)");
+    }
+
+    pub(crate) fn emit_locals_alloc(&mut self) {
+        if self.locals_size > 0 {
+            if self.locals_size <= 127 {
+                self.emit(&format!("        add     sp,-{}", self.locals_size));
+            } else {
+                self.emit(&format!("        sub     sp,{}", self.locals_size));
+            }
+        }
     }
 
     pub(crate) fn collect_locals_block(&mut self, stmts: &[Stmt]) {

@@ -6,16 +6,18 @@ use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
 
 use crate::stmt::parse_block;
+use cc24_parse_stream::try_parse_interrupt_attr;
 
 /// Parse a full program (sequence of functions and globals).
 pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
     let mut functions = Vec::new();
     let mut globals = Vec::new();
     while !ts.at_eof() {
+        let is_interrupt = try_parse_interrupt_attr(ts);
         if is_global_decl(ts) {
             globals.push(parse_global_decl(ts)?);
         } else {
-            functions.push(parse_function(ts)?);
+            functions.push(parse_function(ts, is_interrupt)?);
         }
     }
     Ok(Program { functions, globals })
@@ -51,7 +53,7 @@ fn parse_global_decl(ts: &mut TokenStream) -> Result<GlobalDecl, CompileError> {
     Ok(GlobalDecl { name, ty, init })
 }
 
-fn parse_function(ts: &mut TokenStream) -> Result<Function, CompileError> {
+fn parse_function(ts: &mut TokenStream, is_interrupt: bool) -> Result<Function, CompileError> {
     let span = ts.current_span();
     let return_ty = parse_type(ts)?;
     let name = ts.expect_ident()?;
@@ -65,6 +67,7 @@ fn parse_function(ts: &mut TokenStream) -> Result<Function, CompileError> {
         params,
         body,
         span,
+        is_interrupt,
     })
 }
 

@@ -4,6 +4,7 @@ mod binop;
 mod emit;
 mod expr;
 mod func;
+mod runtime;
 mod stmt;
 
 use std::collections::{HashMap, HashSet};
@@ -44,7 +45,7 @@ impl Codegen {
             self.emit("");
             self.gen_function(func);
         }
-        self.emit_runtime();
+        runtime::emit_runtime(self);
         self.emit_data_section(program);
         self.out.clone()
     }

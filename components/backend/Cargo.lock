@@ -36,6 +36,15 @@ dependencies = [
  "cc24-codegen",
  "cc24-lexer",
  "cc24-parser",
+]
+
+[[package]]
+name = "cc24-codegen-validate"
+version = "0.1.0"
+dependencies = [
+ "cc24-codegen",
+ "cc24-lexer",
+ "cc24-parser",
  "tempfile",
 ]
 

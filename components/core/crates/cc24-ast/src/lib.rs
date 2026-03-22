@@ -33,6 +33,7 @@ pub struct Function {
     pub params: Vec<Param>,
     pub body: Block,
     pub span: Span,
+    pub is_interrupt: bool,
 }
 
 /// A function parameter.

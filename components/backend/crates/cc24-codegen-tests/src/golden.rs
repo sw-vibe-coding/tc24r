@@ -1,6 +1,6 @@
 //! Golden file tests comparing compiler output to expected assembly.
 
-use super::{compile, golden_test};
+use super::golden_test;
 
 #[test]
 fn golden_return_0() {
@@ -33,14 +33,4 @@ fn golden_control_flow() {
     golden_test("call");
     golden_test("fib");
     golden_test("globals");
-}
-
-#[test]
-fn codegen_emits_start() {
-    let output = compile("int main() { return 0; }");
-    assert!(output.contains("_start:"));
-    assert!(output.contains("la      r0,_main"));
-    assert!(output.contains("jal     r1,(r0)"));
-    assert!(output.contains("_halt:"));
-    assert!(output.contains("bra     _halt"));
 }
