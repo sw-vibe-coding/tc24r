@@ -2,7 +2,7 @@
 
 use cc24_ast::{Expr, Program, Type};
 use cc24_codegen_state::CodegenState;
-use cc24_emit_core::emit;
+use cc24_emit_macros::emit;
 
 /// Emit the `.data` section for globals and string literals.
 pub fn emit_data_section(state: &mut CodegenState, program: &Program) {
@@ -11,27 +11,29 @@ pub fn emit_data_section(state: &mut CodegenState, program: &Program) {
     if !has_globals && !has_strings {
         return;
     }
-    emit(state, "");
-    emit(state, "        .data");
+    emit!(state, "");
+    emit!(state, "        .data");
     for g in &program.globals {
-        emit(state, &format!("_{}:", g.name));
+        let name = &g.name;
+        emit!(state, "_{name}:");
         let val = match &g.init {
             Some(Expr::IntLit(v)) => *v,
             _ => 0,
         };
         if g.ty == Type::Char {
-            emit(state, &format!("        .byte   {val}"));
+            emit!(state, "        .byte   {val}");
         } else {
-            emit(state, &format!("        .word   {val}"));
+            emit!(state, "        .word   {val}");
         }
     }
     for (i, s) in state.string_literals.clone().iter().enumerate() {
-        emit(state, &format!("_S{i}:"));
+        emit!(state, "_S{i}:");
         let bytes: Vec<String> = s
             .bytes()
             .chain(std::iter::once(0))
             .map(|b| b.to_string())
             .collect();
-        emit(state, &format!("        .byte   {}", bytes.join(",")));
+        let byte_str = bytes.join(",");
+        emit!(state, "        .byte   {byte_str}");
     }
 }

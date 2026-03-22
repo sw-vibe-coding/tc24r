@@ -1,14 +1,17 @@
 //! Startup code emission.
 
 use cc24_codegen_state::CodegenState;
-use cc24_emit_core::emit;
+use cc24_emit_macros::emit_lines;
 
 /// Emit startup code that calls `_main` and halts.
 pub fn emit_start(state: &mut CodegenState) {
-    emit(state, "        .globl  _start");
-    emit(state, "_start:");
-    emit(state, "        la      r0,_main");
-    emit(state, "        jal     r1,(r0)");
-    emit(state, "_halt:");
-    emit(state, "        bra     _halt");
+    emit_lines!(
+        state,
+        "        .globl  _start",
+        "_start:",
+        "        la      r0,_main",
+        "        jal     r1,(r0)",
+        "_halt:",
+        "        bra     _halt",
+    );
 }

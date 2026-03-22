@@ -21,6 +21,7 @@ name = "cc24-emit-core"
 version = "0.1.0"
 dependencies = [
  "cc24-codegen-state",
+ "cc24-emit-macros",
 ]
 
 [[package]]
@@ -30,6 +31,7 @@ dependencies = [
  "cc24-ast",
  "cc24-codegen-state",
  "cc24-emit-core",
+ "cc24-emit-macros",
 ]
 
 [[package]]
@@ -39,7 +41,12 @@ dependencies = [
  "cc24-ast",
  "cc24-codegen-state",
  "cc24-emit-core",
+ "cc24-emit-macros",
 ]
+
+[[package]]
+name = "cc24-emit-macros"
+version = "0.1.0"
 
 [[package]]
 name = "cc24-span"
