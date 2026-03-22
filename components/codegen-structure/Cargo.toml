@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "crates/cc24-struct-prologue",
+    "crates/cc24-struct-isr",
+    "crates/cc24-struct-locals",
+]
+resolver = "3"
