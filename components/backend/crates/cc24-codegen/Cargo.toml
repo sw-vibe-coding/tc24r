@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 cc24-ast = { path = "../../../core/crates/cc24-ast" }
+cc24-dispatch = { path = "../../../dispatch/crates/cc24-dispatch" }

@@ -1,14 +1,5 @@
 //! Source location span for error reporting.
 
-/// A byte range in the source text.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Span {
-    pub offset: usize,
-    pub len: usize,
-}
+mod span;
 
-impl Span {
-    pub fn new(offset: usize, len: usize) -> Self {
-        Self { offset, len }
-    }
-}
+pub use span::Span;

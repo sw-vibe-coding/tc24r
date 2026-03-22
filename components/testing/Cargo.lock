@@ -26,7 +26,12 @@ name = "cc24-codegen"
 version = "0.1.0"
 dependencies = [
  "cc24-ast",
+ "cc24-dispatch",
 ]
+
+[[package]]
+name = "cc24-dispatch"
+version = "0.1.0"
 
 [[package]]
 name = "cc24-error"

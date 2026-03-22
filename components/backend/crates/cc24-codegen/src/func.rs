@@ -2,10 +2,10 @@
 
 use cc24_ast::{Function, Stmt};
 
-use crate::{Codegen, runtime};
+use crate::{Codegen, pipeline, runtime};
 
 impl Codegen {
-    pub(crate) fn gen_function(&mut self, func: &Function) {
+    pub(crate) fn gen_function(&mut self, func: &Function, stmt_chain: &pipeline::StmtChain) {
         self.locals.clear();
         self.local_types.clear();
         self.locals_size = 0;
@@ -29,7 +29,9 @@ impl Codegen {
         }
 
         for stmt in &func.body.stmts {
-            self.gen_stmt(stmt);
+            if !pipeline::dispatch_stmt(stmt_chain, stmt, self) {
+                self.gen_stmt(stmt);
+            }
         }
 
         if func.is_interrupt {

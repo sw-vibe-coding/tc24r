@@ -26,6 +26,7 @@ name = "cc24-codegen"
 version = "0.1.0"
 dependencies = [
  "cc24-ast",
+ "cc24-dispatch",
 ]
 
 [[package]]
@@ -52,6 +53,10 @@ dependencies = [
  "cc24-test-cor24",
  "tempfile",
 ]
+
+[[package]]
+name = "cc24-dispatch"
+version = "0.1.0"
 
 [[package]]
 name = "cc24-error"

@@ -1,2 +1,6 @@
 /target
 target/
+
+# reg-rs test database and lock files (not tracked)
+*.tdb
+*.tdb.lock
