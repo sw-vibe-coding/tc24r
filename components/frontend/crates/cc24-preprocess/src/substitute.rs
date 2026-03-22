@@ -49,13 +49,9 @@ fn expand_ident(
     result: &mut String,
     pos: usize,
 ) -> usize {
-    if let Some((fm, args, consumed)) = func_macros
-        .get(word)
-        .and_then(|fm| {
-            func_macro::parse_invocation_args(rest)
-                .map(|(args, consumed)| (fm, args, consumed))
-        })
-    {
+    if let Some((fm, args, consumed)) = func_macros.get(word).and_then(|fm| {
+        func_macro::parse_invocation_args(rest).map(|(args, consumed)| (fm, args, consumed))
+    }) {
         let expanded = func_macro::substitute_params(&fm.body, &fm.params, &args);
         let re_expanded = expand_line(&expanded, defines, func_macros);
         result.push_str(&re_expanded);

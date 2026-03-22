@@ -4,7 +4,9 @@ members = [
     "crates/cc24-lexer-tests",
     "crates/cc24-parse-stream",
     "crates/cc24-parser",
+    "crates/cc24-parser-compound",
     "crates/cc24-parser-tests",
+    "crates/cc24-parser-types",
     "crates/cc24-preprocess",
     "crates/cc24-preprocess-tests",
 ]

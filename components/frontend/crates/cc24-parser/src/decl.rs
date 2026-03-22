@@ -1,12 +1,15 @@
 //! Top-level and declaration parsing.
 
-use cc24_ast::{Function, GlobalDecl, Param, Program, Type};
+use cc24_ast::{Function, GlobalDecl, Param, Program};
 use cc24_error::CompileError;
 use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
 
 use crate::stmt::parse_block;
 use cc24_parse_stream::try_parse_interrupt_attr;
+
+use cc24_parser_types::{is_base_type, is_storage_class};
+pub use cc24_parser_types::{is_type_keyword, parse_type};
 
 /// Parse a full program (sequence of functions and globals).
 pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
@@ -39,19 +42,6 @@ fn is_global_decl(ts: &TokenStream) -> bool {
     }
     matches!(ts.lookahead(i), TokenKind::Ident(_))
         && !matches!(ts.lookahead(i + 1), TokenKind::LParen)
-}
-
-/// Check whether a token kind starts a declaration (type or storage class).
-pub fn is_type_keyword(kind: &TokenKind) -> bool {
-    is_base_type(kind) || is_storage_class(kind)
-}
-
-fn is_base_type(kind: &TokenKind) -> bool {
-    matches!(kind, TokenKind::Char | TokenKind::Int | TokenKind::Void)
-}
-
-fn is_storage_class(kind: &TokenKind) -> bool {
-    matches!(kind, TokenKind::Static | TokenKind::Extern)
 }
 
 fn parse_global_decl(ts: &mut TokenStream) -> Result<GlobalDecl, CompileError> {
@@ -98,37 +88,4 @@ fn parse_params(ts: &mut TokenStream) -> Result<Vec<Param>, CompileError> {
         }
     }
     Ok(params)
-}
-
-pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
-    // Consume and ignore storage-class specifiers (static, extern)
-    while matches!(ts.peek().kind, TokenKind::Static | TokenKind::Extern) {
-        ts.advance();
-    }
-    let base = match ts.peek().kind {
-        TokenKind::Char => {
-            ts.advance();
-            Type::Char
-        }
-        TokenKind::Int => {
-            ts.advance();
-            Type::Int
-        }
-        TokenKind::Void => {
-            ts.advance();
-            Type::Void
-        }
-        _ => {
-            return Err(CompileError::new(
-                format!("expected type, got {:?}", ts.peek().kind),
-                Some(ts.current_span()),
-            ));
-        }
-    };
-    // Consume pointer stars: int *, char **, etc.
-    let mut ty = base;
-    while ts.eat(TokenKind::Star) {
-        ty = Type::Ptr(Box::new(ty));
-    }
-    Ok(ty)
 }
