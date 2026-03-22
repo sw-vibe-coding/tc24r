@@ -1,8 +1,29 @@
 //! Unary and binary operator code generation.
 
-use cc24_ast::{BinOp, UnaryOp};
+use cc24_ast::{BinOp, Expr, Type, UnaryOp};
 
 use crate::Codegen;
+
+/// Infer the type of an expression from codegen state.
+pub(crate) fn expr_type(cg: &Codegen, expr: &Expr) -> Option<Type> {
+    match expr {
+        Expr::Ident(name) => cg
+            .local_types
+            .get(name)
+            .or_else(|| cg.global_types.get(name))
+            .cloned(),
+        Expr::Cast { ty, .. } => Some(ty.clone()),
+        Expr::AddrOf(name) => {
+            let inner = expr_type(cg, &Expr::Ident(name.clone()))?;
+            Some(Type::Ptr(Box::new(inner)))
+        }
+        Expr::Deref(inner) => match expr_type(cg, inner)? {
+            Type::Ptr(pointee) => Some(*pointee),
+            _ => None,
+        },
+        _ => None,
+    }
+}
 
 impl Codegen {
     pub(crate) fn gen_unary(&mut self, op: UnaryOp, operand: &cc24_ast::Expr) {
@@ -25,10 +46,24 @@ impl Codegen {
         }
     }
 
-    pub(crate) fn gen_binop(&mut self, op: BinOp, lhs: &cc24_ast::Expr, rhs: &cc24_ast::Expr) {
+    pub(crate) fn gen_binop(&mut self, op: BinOp, lhs: &Expr, rhs: &Expr) {
+        // Pointer arithmetic: scale integer operand by pointee size
+        let scale = if matches!(op, BinOp::Add | BinOp::Sub) {
+            match expr_type(self, lhs) {
+                Some(Type::Ptr(inner)) => inner.size(),
+                _ => 1,
+            }
+        } else {
+            1
+        };
+
         self.gen_expr(lhs);
         self.emit("        push    r0");
         self.gen_expr(rhs);
+        if scale > 1 {
+            self.emit(&format!("        lc      r1,{scale}"));
+            self.emit("        mul     r0,r1");
+        }
         self.emit("        mov     r1,r0"); // r1 = rhs
         self.emit("        pop     r0"); // r0 = lhs
         self.emit_binop(op);

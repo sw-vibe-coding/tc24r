@@ -8,7 +8,7 @@ mod stmt;
 
 use std::collections::{HashMap, HashSet};
 
-use cc24_ast::Program;
+use cc24_ast::{Program, Type};
 
 /// Code generator state.
 #[derive(Default)]
@@ -16,8 +16,10 @@ pub struct Codegen {
     pub(crate) out: String,
     pub(crate) label_counter: usize,
     pub(crate) locals: HashMap<String, i32>,
+    pub(crate) local_types: HashMap<String, Type>,
     pub(crate) locals_size: i32,
     pub(crate) globals: HashSet<String>,
+    pub(crate) global_types: HashMap<String, Type>,
     pub(crate) return_label: String,
 }
 
@@ -30,6 +32,7 @@ impl Codegen {
     pub fn generate(&mut self, program: &Program) -> String {
         for g in &program.globals {
             self.globals.insert(g.name.clone());
+            self.global_types.insert(g.name.clone(), g.ty.clone());
         }
         self.emit("        .text");
         self.emit("");

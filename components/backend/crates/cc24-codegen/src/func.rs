@@ -7,6 +7,7 @@ use crate::Codegen;
 impl Codegen {
     pub(crate) fn gen_function(&mut self, func: &Function) {
         self.locals.clear();
+        self.local_types.clear();
         self.locals_size = 0;
         self.return_label = self.new_label();
 
@@ -14,6 +15,8 @@ impl Codegen {
         for (i, param) in func.params.iter().enumerate() {
             let offset = 9 + (i as i32) * 3;
             self.locals.insert(param.name.clone(), offset);
+            self.local_types
+                .insert(param.name.clone(), param.ty.clone());
         }
 
         self.emit(&format!("        .globl  _{}", func.name));
@@ -61,11 +64,12 @@ impl Codegen {
 impl Codegen {
     fn collect_locals_stmt(&mut self, stmt: &Stmt) {
         match stmt {
-            Stmt::LocalDecl { name, .. } => {
+            Stmt::LocalDecl { name, ty, .. } => {
                 if !self.locals.contains_key(name) {
                     self.locals_size += 3;
                     let offset = -self.locals_size;
                     self.locals.insert(name.clone(), offset);
+                    self.local_types.insert(name.clone(), ty.clone());
                 }
             }
             Stmt::If {
