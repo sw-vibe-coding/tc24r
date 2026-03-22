@@ -68,6 +68,8 @@ impl Lexer<'_> {
             b'=' => TokenKind::Assign,
             b'<' => TokenKind::Lt,
             b'>' => TokenKind::Gt,
+            b'?' => TokenKind::Question,
+            b':' => TokenKind::Colon,
             _ => return None,
         };
         self.pos += 1;

@@ -14,7 +14,7 @@ pub fn parse_expr(ts: &mut TokenStream) -> Result<Expr, CompileError> {
 }
 
 fn parse_assign(ts: &mut TokenStream) -> Result<Expr, CompileError> {
-    let expr = parse_log_or(ts)?;
+    let expr = parse_ternary(ts)?;
     if ts.eat(TokenKind::Assign) {
         let value = parse_assign(ts)?;
         return match expr {
@@ -33,6 +33,21 @@ fn parse_assign(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         };
     }
     Ok(expr)
+}
+
+fn parse_ternary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
+    let cond = parse_log_or(ts)?;
+    if ts.eat(TokenKind::Question) {
+        let then_expr = parse_expr(ts)?;
+        ts.expect(TokenKind::Colon)?;
+        let else_expr = parse_ternary(ts)?;
+        return Ok(Expr::Ternary {
+            cond: Box::new(cond),
+            then_expr: Box::new(then_expr),
+            else_expr: Box::new(else_expr),
+        });
+    }
+    Ok(cond)
 }
 
 pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {

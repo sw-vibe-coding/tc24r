@@ -45,6 +45,12 @@ pub enum Expr {
     PostInc(String),
     /// Post-decrement: i-- (returns old value)
     PostDec(String),
+    /// Ternary: cond ? then_expr : else_expr
+    Ternary {
+        cond: Box<Expr>,
+        then_expr: Box<Expr>,
+        else_expr: Box<Expr>,
+    },
 }
 
 /// Binary operator.

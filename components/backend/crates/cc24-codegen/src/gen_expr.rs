@@ -1,5 +1,7 @@
 use cc24_ast::Expr;
 use cc24_codegen_state::CodegenState;
+use cc24_emit_core::new_label;
+use cc24_emit_macros::emit;
 
 pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
     match expr {
@@ -30,5 +32,24 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
             let post = matches!(expr, Expr::PostInc(_) | Expr::PostDec(_));
             cc24_ops_incdec::gen_inc_dec(state, name, delta, post);
         }
+        Expr::Ternary {
+            cond,
+            then_expr,
+            else_expr,
+        } => gen_ternary(state, cond, then_expr, else_expr),
     }
+}
+
+fn gen_ternary(state: &mut CodegenState, cond: &Expr, then_expr: &Expr, else_expr: &Expr) {
+    let else_label = new_label(state);
+    let done_label = new_label(state);
+
+    gen_expr(cond, state);
+    emit!(state, "        ceq     r0,z");
+    emit!(state, "        brt     {else_label}");
+    gen_expr(then_expr, state);
+    emit!(state, "        bra     {done_label}");
+    emit!(state, "{else_label}:");
+    gen_expr(else_expr, state);
+    emit!(state, "{done_label}:");
 }

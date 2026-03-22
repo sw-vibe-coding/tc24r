@@ -58,6 +58,8 @@ pub enum TokenKind {
     Gt,
     LtEq,
     GtEq,
+    Question,
+    Colon,
 
     // End of file
     Eof,
