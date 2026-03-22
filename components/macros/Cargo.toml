@@ -2,6 +2,7 @@
 members = [
     "crates/cc24-emit-macros",
     "crates/cc24-handler-macros",
+    "crates/cc24-asm-dsl",
     "crates/cc24-macros-tests",
 ]
 resolver = "3"

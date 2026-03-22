@@ -7,3 +7,4 @@ edition = "2024"
 cc24-dispatch = { path = "../../../dispatch/crates/cc24-dispatch" }
 cc24-emit-macros = { path = "../cc24-emit-macros" }
 cc24-handler-macros = { path = "../cc24-handler-macros" }
+cc24-asm-dsl = { path = "../cc24-asm-dsl" }
