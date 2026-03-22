@@ -19,6 +19,7 @@ pub enum TokenKind {
     Sizeof,
     Static,
     Extern,
+    Const,
     Enum,
     Typedef,
 

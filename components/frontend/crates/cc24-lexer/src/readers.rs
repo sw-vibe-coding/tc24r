@@ -182,6 +182,7 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "return" => TokenKind::Return,
         "break" => TokenKind::Break,
         "char" => TokenKind::Char,
+        "const" => TokenKind::Const,
         "continue" => TokenKind::Continue,
         "do" => TokenKind::Do,
         "if" => TokenKind::If,

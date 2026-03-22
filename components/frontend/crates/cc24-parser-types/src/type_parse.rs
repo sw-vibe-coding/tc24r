@@ -29,12 +29,18 @@ pub fn is_base_type(kind: &TokenKind) -> bool {
 }
 
 pub fn is_storage_class(kind: &TokenKind) -> bool {
-    matches!(kind, TokenKind::Static | TokenKind::Extern)
+    matches!(
+        kind,
+        TokenKind::Static | TokenKind::Extern | TokenKind::Const
+    )
 }
 
 pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
-    // Consume and ignore storage-class specifiers (static, extern)
-    while matches!(ts.peek().kind, TokenKind::Static | TokenKind::Extern) {
+    // Consume and ignore storage-class/type-qualifier specifiers
+    while matches!(
+        ts.peek().kind,
+        TokenKind::Static | TokenKind::Extern | TokenKind::Const
+    ) {
         ts.advance();
     }
     let base = match ts.peek().kind {
@@ -70,9 +76,12 @@ pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
             ));
         }
     };
-    // Consume pointer stars: int *, char **, etc.
+    // Consume trailing const: int const, char const
+    while ts.eat(TokenKind::Const) {}
+    // Consume pointer stars and const qualifiers: int *, int *const, char **
     let mut ty = base;
     while ts.eat(TokenKind::Star) {
+        while ts.eat(TokenKind::Const) {}
         ty = Type::Ptr(Box::new(ty));
     }
     Ok(ty)
