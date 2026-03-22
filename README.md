@@ -137,6 +137,21 @@ cargo run -- run path/to/program.s
 | 20 | demo20.c | Statement expressions ({ }) | PASS |
 | 21 | demo21.c | Compound assignment (+=, -=, *=, /=, etc.) | PASS |
 
+### chibicc-Inspired Subset Tests (5/5 pass)
+
+Simplified tests based on chibicc patterns, using only cc24-supported
+features. Located in `tests/chibicc-subset/`.
+
+| Test | Features Verified | Status |
+|------|------------------|--------|
+| arith.c | +, -, *, /, comparisons, &&, ||, !, ?:, +=/-= | PASS |
+| control.c | if/else, while, for, do-while, break, continue | PASS |
+| function.c | calls, arguments, recursion (fib) | PASS |
+| pointer.c | &x, *p, *p=val, array indexing, *(a+n) | PASS |
+| variable.c | locals, globals, assignment, multi-decl | PASS |
+
+Run subset tests: `scripts/run-subset-tests.sh`
+
 Run a demo:
 
 ```bash

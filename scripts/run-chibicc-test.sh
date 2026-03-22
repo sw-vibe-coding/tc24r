@@ -35,15 +35,27 @@ cargo build --manifest-path "$ROOT_DIR/components/cli/Cargo.toml" --release --qu
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# Adapt the test file:
-# - Use our test.h (via -I), no change needed for #include "test.h"
-# - Strip printf/sprintf/exit calls (hosted C, not available)
-# - Replace final return 0 with return _test_fail
+# Adapt the test file for cc24 freestanding:
+# - Our include/test.h provides ASSERT as a function-like macro
+# - Strip printf/exit/hosted-C helper declarations
+# - Strip the common file's helper function implementations
 sed \
     -e '/printf/d' \
     -e '/sprintf/d' \
     -e '/exit(/d' \
-    -e 's/return 0;$/return _test_fail;/' \
+    -e '/^void assert/d' \
+    -e '/^int ext/d' \
+    -e '/^int \*ext/d' \
+    -e '/^int common_/d' \
+    -e '/^static int common_/d' \
+    -e '/^int false_fn/d' \
+    -e '/^int true_fn/d' \
+    -e '/^int char_fn/d' \
+    -e '/^int short_fn/d' \
+    -e '/^int uchar_fn/d' \
+    -e '/^int ushort_fn/d' \
+    -e '/^static int static_fn/d' \
+    -e '/^int ext_fn/d' \
     "$SRC" > "$TMPDIR/$NAME.c"
 
 # Compile

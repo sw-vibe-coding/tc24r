@@ -2,9 +2,15 @@
 
 use std::collections::HashMap;
 
+use crate::func_macro::{self, FuncMacro};
+
 /// Expand defines in a single line, respecting string boundaries.
-pub fn expand_line(line: &str, defines: &HashMap<String, String>) -> String {
-    if defines.is_empty() {
+pub fn expand_line(
+    line: &str,
+    defines: &HashMap<String, String>,
+    func_macros: &HashMap<String, FuncMacro>,
+) -> String {
+    if defines.is_empty() && func_macros.is_empty() {
         return line.to_string();
     }
 
@@ -23,11 +29,7 @@ pub fn expand_line(line: &str, defines: &HashMap<String, String>) -> String {
                 i += 1;
             }
             let word = &line[start..i];
-            if let Some(replacement) = defines.get(word) {
-                result.push_str(replacement);
-            } else {
-                result.push_str(word);
-            }
+            i = expand_ident(word, &line[i..], defines, func_macros, &mut result, i);
         } else {
             result.push(bytes[i] as char);
             i += 1;
@@ -35,6 +37,36 @@ pub fn expand_line(line: &str, defines: &HashMap<String, String>) -> String {
     }
 
     result
+}
+
+/// Expand an identifier: try function-like macro first, then simple define.
+/// Returns the new byte index into the original line.
+fn expand_ident(
+    word: &str,
+    rest: &str,
+    defines: &HashMap<String, String>,
+    func_macros: &HashMap<String, FuncMacro>,
+    result: &mut String,
+    pos: usize,
+) -> usize {
+    if let Some((fm, args, consumed)) = func_macros
+        .get(word)
+        .and_then(|fm| {
+            func_macro::parse_invocation_args(rest)
+                .map(|(args, consumed)| (fm, args, consumed))
+        })
+    {
+        let expanded = func_macro::substitute_params(&fm.body, &fm.params, &args);
+        let re_expanded = expand_line(&expanded, defines, func_macros);
+        result.push_str(&re_expanded);
+        return pos + consumed;
+    }
+    if let Some(replacement) = defines.get(word) {
+        result.push_str(replacement);
+    } else {
+        result.push_str(word);
+    }
+    pos
 }
 
 fn copy_string_literal(bytes: &[u8], start: usize, out: &mut String) -> usize {

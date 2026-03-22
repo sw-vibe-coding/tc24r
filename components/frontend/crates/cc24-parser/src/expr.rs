@@ -114,6 +114,10 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     if ts.eat(TokenKind::Sizeof) {
         return parse_sizeof(ts);
     }
+    if ts.eat(TokenKind::Plus) {
+        // Unary + is identity, just parse the operand
+        return parse_unary(ts);
+    }
     if ts.eat(TokenKind::Minus) {
         let operand = parse_unary(ts)?;
         return Ok(Expr::UnaryOp {
