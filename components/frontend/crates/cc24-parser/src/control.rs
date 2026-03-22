@@ -5,6 +5,7 @@ use cc24_error::CompileError;
 use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
 
+use crate::decl::is_type_keyword;
 use crate::expr::parse_expr;
 use crate::stmt::{parse_block, parse_local_decl};
 
@@ -62,7 +63,7 @@ fn parse_for_init(ts: &mut TokenStream) -> Result<Option<Box<Stmt>>, CompileErro
         ts.expect(TokenKind::Semicolon)?;
         return Ok(None);
     }
-    if ts.check(&TokenKind::Int) || ts.check(&TokenKind::Void) {
+    if is_type_keyword(&ts.peek().kind) {
         // local decl consumes its own semicolon
         return Ok(Some(Box::new(parse_local_decl(ts)?)));
     }

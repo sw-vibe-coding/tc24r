@@ -1,4 +1,4 @@
-//! Golden file tests for basic expressions and locals.
+//! Golden file tests comparing compiler output to expected assembly.
 
 use super::{compile, golden_test};
 
@@ -25,6 +25,14 @@ fn golden_add_locals() {
 #[test]
 fn golden_if_else() {
     golden_test("if_else");
+}
+
+#[test]
+fn golden_control_flow() {
+    golden_test("while_loop");
+    golden_test("call");
+    golden_test("fib");
+    golden_test("globals");
 }
 
 #[test]

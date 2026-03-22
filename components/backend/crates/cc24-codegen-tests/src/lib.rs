@@ -9,9 +9,9 @@ mod cor24_basic;
 #[cfg(test)]
 mod cor24_ops;
 #[cfg(test)]
-mod golden_basic;
+mod cor24_ptr;
 #[cfg(test)]
-mod golden_flow;
+mod golden;
 
 /// Compile C source to COR24 assembly.
 #[cfg(test)]

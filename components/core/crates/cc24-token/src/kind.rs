@@ -4,6 +4,7 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenKind {
     // Keywords
+    Char,
     Int,
     Void,
     Return,

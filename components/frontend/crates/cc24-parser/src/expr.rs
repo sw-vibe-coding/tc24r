@@ -6,6 +6,7 @@ use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
 
 use crate::bitwise::parse_or;
+use crate::decl::{is_type_keyword, parse_type};
 
 /// Parse an expression.
 pub fn parse_expr(ts: &mut TokenStream) -> Result<Expr, CompileError> {
@@ -15,17 +16,21 @@ pub fn parse_expr(ts: &mut TokenStream) -> Result<Expr, CompileError> {
 fn parse_assign(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     let expr = parse_or(ts)?;
     if ts.eat(TokenKind::Assign) {
-        let Expr::Ident(name) = expr else {
-            return Err(CompileError::new(
-                "left side of assignment must be a variable",
-                None,
-            ));
-        };
         let value = parse_assign(ts)?;
-        return Ok(Expr::Assign {
-            name,
-            value: Box::new(value),
-        });
+        return match expr {
+            Expr::Ident(name) => Ok(Expr::Assign {
+                name,
+                value: Box::new(value),
+            }),
+            Expr::Deref(ptr) => Ok(Expr::DerefAssign {
+                ptr,
+                value: Box::new(value),
+            }),
+            _ => Err(CompileError::new(
+                "left side of assignment must be a variable or dereference",
+                None,
+            )),
+        };
     }
     Ok(expr)
 }
@@ -52,11 +57,29 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             operand: Box::new(operand),
         });
     }
+    if ts.eat(TokenKind::Amp) {
+        let name = ts.expect_ident()?;
+        return Ok(Expr::AddrOf(name));
+    }
+    if ts.eat(TokenKind::Star) {
+        let operand = parse_unary(ts)?;
+        return Ok(Expr::Deref(Box::new(operand)));
+    }
     parse_primary(ts)
 }
 
 fn parse_primary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     if ts.eat(TokenKind::LParen) {
+        // Cast: (type)expr  vs  parenthesized: (expr)
+        if is_type_keyword(&ts.peek().kind) {
+            let ty = parse_type(ts)?;
+            ts.expect(TokenKind::RParen)?;
+            let operand = parse_unary(ts)?;
+            return Ok(Expr::Cast {
+                ty,
+                expr: Box::new(operand),
+            });
+        }
         let expr = parse_expr(ts)?;
         ts.expect(TokenKind::RParen)?;
         return Ok(expr);

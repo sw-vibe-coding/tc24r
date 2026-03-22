@@ -97,6 +97,7 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "int" => TokenKind::Int,
         "void" => TokenKind::Void,
         "return" => TokenKind::Return,
+        "char" => TokenKind::Char,
         "if" => TokenKind::If,
         "else" => TokenKind::Else,
         "while" => TokenKind::While,

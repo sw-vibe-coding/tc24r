@@ -6,7 +6,7 @@ use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
 
 use crate::control;
-use crate::decl::parse_type;
+use crate::decl::{is_type_keyword, parse_type};
 use crate::expr::parse_expr;
 
 /// Parse a brace-delimited block.
@@ -37,7 +37,7 @@ pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     if ts.eat(TokenKind::Asm) {
         return control::parse_asm(ts);
     }
-    if ts.check(&TokenKind::Int) || ts.check(&TokenKind::Void) {
+    if is_type_keyword(&ts.peek().kind) {
         return parse_local_decl(ts);
     }
     let expr = parse_expr(ts)?;

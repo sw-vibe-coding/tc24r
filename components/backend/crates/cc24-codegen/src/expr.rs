@@ -1,8 +1,21 @@
 //! Expression code generation.
 
-use cc24_ast::Expr;
+use cc24_ast::{Expr, Type};
 
 use crate::Codegen;
+
+/// Extract the pointee type from a pointer expression, if known.
+fn pointee_type(expr: &Expr) -> Option<&Type> {
+    if let Expr::Cast {
+        ty: Type::Ptr(inner),
+        ..
+    } = expr
+    {
+        Some(inner)
+    } else {
+        None
+    }
+}
 
 impl Codegen {
     /// Generate code for an expression. Result is left in r0.
@@ -15,6 +28,10 @@ impl Codegen {
             Expr::Call { name, args } => self.gen_call(name, args),
             Expr::UnaryOp { op, operand } => self.gen_unary(*op, operand),
             Expr::BinOp { op, lhs, rhs } => self.gen_binop(*op, lhs, rhs),
+            Expr::AddrOf(name) => self.gen_addr_of(name),
+            Expr::Deref(ptr) => self.gen_deref(ptr),
+            Expr::Cast { expr, .. } => self.gen_expr(expr),
+            Expr::DerefAssign { ptr, value } => self.gen_deref_assign(ptr, value),
         }
     }
 
@@ -36,6 +53,41 @@ impl Codegen {
         } else {
             let offset = self.locals[name];
             self.emit(&format!("        sw      r0,{offset}(fp)"));
+        }
+    }
+
+    fn gen_addr_of(&mut self, name: &str) {
+        if self.globals.contains(name) {
+            self.emit(&format!("        la      r0,_{name}"));
+        } else {
+            let offset = self.locals[name];
+            // r0 = fp + offset
+            self.load_immediate(offset);
+            self.emit("        add     r0,fp");
+        }
+    }
+
+    fn gen_deref(&mut self, ptr: &Expr) {
+        let is_byte = matches!(pointee_type(ptr), Some(Type::Char));
+        self.gen_expr(ptr);
+        if is_byte {
+            self.emit("        lbu     r0,0(r0)");
+        } else {
+            self.emit("        lw      r0,0(r0)");
+        }
+    }
+
+    fn gen_deref_assign(&mut self, ptr: &Expr, value: &Expr) {
+        let is_byte = matches!(pointee_type(ptr), Some(Type::Char));
+        self.gen_expr(value);
+        self.emit("        push    r0");
+        self.gen_expr(ptr);
+        self.emit("        mov     r1,r0"); // r1 = address
+        self.emit("        pop     r0"); // r0 = value
+        if is_byte {
+            self.emit("        sb      r0,0(r1)");
+        } else {
+            self.emit("        sw      r0,0(r1)");
         }
     }
 

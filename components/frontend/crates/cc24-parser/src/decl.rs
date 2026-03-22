@@ -22,9 +22,14 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
 }
 
 fn is_global_decl(ts: &TokenStream) -> bool {
-    matches!(ts.lookahead(0), TokenKind::Int | TokenKind::Void)
+    is_type_keyword(ts.lookahead(0))
         && matches!(ts.lookahead(1), TokenKind::Ident(_))
         && !matches!(ts.lookahead(2), TokenKind::LParen)
+}
+
+/// Check whether a token kind starts a type specifier.
+pub fn is_type_keyword(kind: &TokenKind) -> bool {
+    matches!(kind, TokenKind::Char | TokenKind::Int | TokenKind::Void)
 }
 
 fn parse_global_decl(ts: &mut TokenStream) -> Result<GlobalDecl, CompileError> {
@@ -73,18 +78,30 @@ fn parse_params(ts: &mut TokenStream) -> Result<Vec<Param>, CompileError> {
 }
 
 pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
-    match ts.peek().kind {
+    let base = match ts.peek().kind {
+        TokenKind::Char => {
+            ts.advance();
+            Type::Char
+        }
         TokenKind::Int => {
             ts.advance();
-            Ok(Type::Int)
+            Type::Int
         }
         TokenKind::Void => {
             ts.advance();
-            Ok(Type::Void)
+            Type::Void
         }
-        _ => Err(CompileError::new(
-            format!("expected type, got {:?}", ts.peek().kind),
-            Some(ts.current_span()),
-        )),
+        _ => {
+            return Err(CompileError::new(
+                format!("expected type, got {:?}", ts.peek().kind),
+                Some(ts.current_span()),
+            ));
+        }
+    };
+    // Consume pointer stars: int *, char **, etc.
+    let mut ty = base;
+    while ts.eat(TokenKind::Star) {
+        ty = Type::Ptr(Box::new(ty));
     }
+    Ok(ty)
 }

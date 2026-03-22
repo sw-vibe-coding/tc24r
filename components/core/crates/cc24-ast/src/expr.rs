@@ -23,6 +23,20 @@ pub enum Expr {
         op: UnaryOp,
         operand: Box<Expr>,
     },
+    /// Address-of: &x
+    AddrOf(String),
+    /// Pointer dereference: *p
+    Deref(Box<Expr>),
+    /// Cast expression: (type)expr
+    Cast {
+        ty: crate::Type,
+        expr: Box<Expr>,
+    },
+    /// Dereference assignment: *p = val
+    DerefAssign {
+        ptr: Box<Expr>,
+        value: Box<Expr>,
+    },
 }
 
 /// Binary operator.
