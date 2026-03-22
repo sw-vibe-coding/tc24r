@@ -34,8 +34,13 @@ impl Codegen {
             return;
         }
         if self.globals.contains(name) {
+            let is_char = self.global_types.get(name) == Some(&Type::Char);
             self.emit(&format!("        la      r1,_{name}"));
-            self.emit("        lw      r0,0(r1)");
+            if is_char {
+                self.emit("        lbu     r0,0(r1)");
+            } else {
+                self.emit("        lw      r0,0(r1)");
+            }
         } else {
             let offset = self.locals[name];
             self.emit(&format!("        lw      r0,{offset}(fp)"));
@@ -45,8 +50,13 @@ impl Codegen {
     fn gen_assign(&mut self, name: &str, value: &Expr) {
         self.gen_expr(value);
         if self.globals.contains(name) {
+            let is_char = self.global_types.get(name) == Some(&Type::Char);
             self.emit(&format!("        la      r1,_{name}"));
-            self.emit("        sw      r0,0(r1)");
+            if is_char {
+                self.emit("        sb      r0,0(r1)");
+            } else {
+                self.emit("        sw      r0,0(r1)");
+            }
         } else {
             let offset = self.locals[name];
             self.emit(&format!("        sw      r0,{offset}(fp)"));

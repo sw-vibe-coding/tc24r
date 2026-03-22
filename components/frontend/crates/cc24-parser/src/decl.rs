@@ -22,9 +22,16 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
 }
 
 fn is_global_decl(ts: &TokenStream) -> bool {
-    is_type_keyword(ts.lookahead(0))
-        && matches!(ts.lookahead(1), TokenKind::Ident(_))
-        && !matches!(ts.lookahead(2), TokenKind::LParen)
+    if !is_type_keyword(ts.lookahead(0)) {
+        return false;
+    }
+    // Skip pointer stars: int **ptr
+    let mut i = 1;
+    while matches!(ts.lookahead(i), TokenKind::Star) {
+        i += 1;
+    }
+    matches!(ts.lookahead(i), TokenKind::Ident(_))
+        && !matches!(ts.lookahead(i + 1), TokenKind::LParen)
 }
 
 /// Check whether a token kind starts a type specifier.

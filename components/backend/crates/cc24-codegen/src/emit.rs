@@ -1,6 +1,6 @@
 //! Output helpers.
 
-use cc24_ast::{Expr, Program};
+use cc24_ast::{Expr, Program, Type};
 
 use crate::Codegen;
 
@@ -103,10 +103,14 @@ impl Codegen {
         self.emit("        .data");
         for g in &program.globals {
             self.emit(&format!("_{}:", g.name));
-            if let Some(Expr::IntLit(val)) = &g.init {
-                self.emit(&format!("        .word   {val}"));
+            let val = match &g.init {
+                Some(Expr::IntLit(v)) => *v,
+                _ => 0,
+            };
+            if g.ty == Type::Char {
+                self.emit(&format!("        .byte   {val}"));
             } else {
-                self.emit("        .word   0");
+                self.emit(&format!("        .word   {val}"));
             }
         }
         for (i, s) in self.string_literals.clone().iter().enumerate() {
