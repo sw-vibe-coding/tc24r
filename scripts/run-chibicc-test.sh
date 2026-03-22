@@ -36,7 +36,16 @@ fi
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-cp "$SRC" "$TMPDIR/$NAME.c"
+# Adapt the test file:
+# - Use our test.h (via -I), no change needed for #include "test.h"
+# - Strip printf/sprintf/exit calls (hosted C, not available)
+# - Replace final return 0 with return _test_fail
+sed \
+    -e '/printf/d' \
+    -e '/sprintf/d' \
+    -e '/exit(/d' \
+    -e 's/return 0;$/return _test_fail;/' \
+    "$SRC" > "$TMPDIR/$NAME.c"
 
 # Compile
 if ! "$CC24" "$TMPDIR/$NAME.c" -o "$TMPDIR/$NAME.s" -I "$INCLUDE_DIR" -I "$CHIBICC_TEST" 2>"$TMPDIR/cc24.err"; then

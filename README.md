@@ -134,6 +134,7 @@ cargo run -- run path/to/program.s
 | 17 | demo17.c | Multi-declaration (int x, y, z;) | PASS |
 | 18 | demo18.c | sizeof operator | PASS |
 | 19 | demo19.c | static/extern keywords | PASS |
+| 20 | demo20.c | Statement expressions ({ }) | PASS |
 
 Run a demo:
 
@@ -143,10 +144,17 @@ demos/run-demo.sh     # runs demo.c through cc24 and cor24-rs
 
 ## chibicc Test Compatibility
 
-chibicc coverage: **0/41 (0%)**
+chibicc coverage: **2/41 (5%)**
 
 Testing against the 41 test files from [chibicc](https://github.com/rui314/chibicc).
-0 currently compile. Status and first blocker for each file listed below.
+2 currently compile and pass. Status and first blocker for each file listed below.
+
+### Passing (2)
+
+| Test | Notes |
+|------|-------|
+| pragma-once | #pragma once inclusion guard |
+| stdhdr | System header inclusion (skips gracefully) |
 
 ### Out of Scope (7)
 
@@ -213,6 +221,8 @@ a freestanding 24-bit target:
 - `++` / `--` -- was blocking for-loop increment patterns
 - `sizeof` operator -- was blocking sizeof.c, decl.c, string.c
 - `static` / `extern` keywords -- was blocking commonsym.c, compat.c, extern.c
+- Statement expressions `({ })` -- was blocking 6 tests (const, decl, enum, pointer, typeof, vla)
+- Test runner adaptation -- strip printf/exit calls, return _test_fail
 
 ### Remaining Blockers (by impact)
 

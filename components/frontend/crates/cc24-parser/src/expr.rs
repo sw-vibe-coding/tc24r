@@ -7,6 +7,7 @@ use cc24_token::TokenKind;
 
 use crate::bitwise::parse_log_or;
 use crate::decl::{is_type_keyword, parse_type};
+use crate::stmt::parse_block;
 
 /// Parse an expression.
 pub fn parse_expr(ts: &mut TokenStream) -> Result<Expr, CompileError> {
@@ -96,6 +97,12 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
 
 fn parse_primary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     if ts.eat(TokenKind::LParen) {
+        // Statement expression: ({ stmt; ... expr; })
+        if ts.check(&TokenKind::LBrace) {
+            let block = parse_block(ts)?;
+            ts.expect(TokenKind::RParen)?;
+            return Ok(Expr::StmtExpr(block));
+        }
         // Cast: (type)expr  vs  parenthesized: (expr)
         if is_type_keyword(&ts.peek().kind) {
             let ty = parse_type(ts)?;

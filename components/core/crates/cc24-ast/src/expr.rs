@@ -45,6 +45,8 @@ pub enum Expr {
     PostInc(String),
     /// Post-decrement: i-- (returns old value)
     PostDec(String),
+    /// GCC statement expression: ({ stmt1; stmt2; expr; })
+    StmtExpr(crate::Block),
     /// Ternary: cond ? then_expr : else_expr
     Ternary {
         cond: Box<Expr>,

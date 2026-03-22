@@ -3,6 +3,8 @@ use cc24_codegen_state::CodegenState;
 use cc24_emit_core::new_label;
 use cc24_emit_macros::emit;
 
+use crate::gen_stmt::gen_stmt;
+
 pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
     match expr {
         Expr::IntLit(val) => cc24_expr_literal::gen_int_lit(state, *val),
@@ -31,6 +33,11 @@ pub fn gen_expr(expr: &Expr, state: &mut CodegenState) {
             };
             let post = matches!(expr, Expr::PostInc(_) | Expr::PostDec(_));
             cc24_ops_incdec::gen_inc_dec(state, name, delta, post);
+        }
+        Expr::StmtExpr(block) => {
+            for s in &block.stmts {
+                gen_stmt(s, state);
+            }
         }
         Expr::Ternary {
             cond,
