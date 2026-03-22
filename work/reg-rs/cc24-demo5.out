@@ -1,0 +1,149 @@
+=== cc24 Demo 5: Arrays ===
+
+Source: demo5.c
+---
+// cc24 demo5 -- arrays
+//
+// New features:
+//   - Array declarations: int a[N]
+//   - Array indexing: a[i] (read and write)
+//   - Array name decays to pointer to first element
+//
+// Expected: r0 = 42, UART output: "D5OK"
+
+void putc(int c) {
+    *(char *)0xFF0100 = c;
+}
+
+void puts(char *s) {
+    while (*s) {
+        putc(*s);
+        s = s + 1;
+    }
+}
+
+int sum_array(int *arr, int len) {
+    int total = 0;
+    int i = 0;
+    while (i < len) {
+        total = total + *(arr + i);
+        i = i + 1;
+    }
+    return total;
+}
+
+int main() {
+    int ok = 1;
+
+    // basic array read/write
+    int a[4];
+    a[0] = 10;
+    a[1] = 20;
+    a[2] = 30;
+    a[3] = 40;
+    if (a[0] + a[3] != 50) { ok = 0; }
+
+    // array passed to function as pointer
+    int total = sum_array(a, 4);
+    if (total != 100) { ok = 0; }
+
+    // char array
+    char buf[3];
+    buf[0] = 65;  // 'A'
+    buf[1] = 66;  // 'B'
+    buf[2] = 0;
+    if (buf[0] != 65) { ok = 0; }
+    if (buf[1] != 66) { ok = 0; }
+
+    if (ok == 1) {
+        puts("D5OK\n");
+        return 42;
+    }
+    return 0;
+}
+---
+
+Compiling demo5.c -> demo5.s
+
+Assembling and running on COR24 emulator...
+
+Assembled 448 bytes
+Running (speed: max IPS, time limit: 10s)...
+
+[UART TX @ 543] 'D'  (0x44)
+[UART TX @ 543] '5'  (0x35)
+[UART TX @ 543] 'O'  (0x4F)
+[UART TX @ 543] 'K'  (0x4B)
+[UART TX @ 543] '\n'
+
+UART output: D5OK
+
+
+Executed 543 instructions
+CPU halted (self-branch detected)
+
+=== Registers ===
+  PC:  0x000005    C: 1
+  r0:  0x00002A  (      42)
+  r1:  0x000005  (       5)
+  r2:  0x000000  (       0)
+  fp:  0x000000
+  sp:  0xFEEC00
+
+=== Emulator ===
+  Instructions: 544
+  Halted: true
+
+=== SRAM 000000-0FFFFF (1 MB) ===
+  000000: 29 87 00 00 25 13 FC 80 7F 7E 65 4D 09 7D 29 00  |)...%....~eM.}).|
+  000010: 01 FF 5A 79 81 00 69 7A 7B 7C 27 80 7F 7E 65 4D  |..Zy..iz{|'..~eM|
+  000020: 09 38 00 C8 15 16 4D 09 38 00 7D 29 07 00 00 25  |.8....M.8.})...%|
+  000030: 0C 03 4D 09 7D 44 01 5A 79 01 A6 09 13 DF 69 7A  |..M.}D.Zy.....iz|
+  000040: 7B 7C 27 80 7F 7E 65 0C FA 44 00 A6 FD 44 00 A6  |{|'..~e..D...D..|
+  000050: FA 4D FA 7D 4D 0C 5A 79 19 62 C8 15 1F 4D FD 7D  |.M.}M.Zy.b...M.}|
+  000060: 4D 09 7D 4D FA 45 03 6B 5A 79 01 4A 00 5A 79 01  |M.}M.E.kZy.J.Zy.|
+  000070: A6 FD 4D FA 7D 44 01 5A 79 01 A6 FA 13 D1 4D FD  |..M.}D.Zy.....M.|
+  000080: 13 FE 69 7A 7B 7C 27 80 7F 7E 65 0C EB 44 01 A6  |..iz{|'..~e..D..|
+  000090: FD 44 0A 7D 44 F1 58 7D 44 00 45 03 6B 5A 79 01  |.D.}D.X}D.E.kZy.|
+  0000A0: 5A 79 A4 00 44 14 7D 44 F1 58 7D 44 01 45 03 6B  |Zy..D.}D.X}D.E.k|
+  0000B0: 5A 79 01 5A 79 A4 00 44 1E 7D 44 F1 58 7D 44 02  |Zy.Zy..D.}D.X}D.|
+  0000C0: 45 03 6B 5A 79 01 5A 79 A4 00 44 28 7D 44 F1 58  |E.kZy.Zy..D(}D.X|
+  0000D0: 7D 44 03 45 03 6B 5A 79 01 5A 79 A4 00 44 F1 58  |}D.E.kZy.Zy..D.X|
+  0000E0: 7D 44 00 45 03 6B 5A 79 01 4A 00 7D 44 F1 58 7D  |}D.E.kZy.J.}D.X}|
+  0000F0: 44 03 45 03 6B 5A 79 01 4A 00 5A 79 01 7D 44 32  |D.E.kZy.J.Zy.}D2|
+  000100: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 04 7D  |Zy.b.b...D...D.}|
+  000110: 44 F1 58 7D 29 43 00 00 25 0C 06 A6 EE 4D EE 7D  |D.X})C..%....M.}|
+  000120: 44 64 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44  |DdZy.b.b...D...D|
+  000130: 41 7D 44 EB 58 7D 44 00 5A 79 01 5A 79 81 00 44  |A}D.X}D.Zy.Zy..D|
+  000140: 42 7D 44 EB 58 7D 44 01 5A 79 01 5A 79 81 00 44  |B}D.X}D.Zy.Zy..D|
+  000150: 00 7D 44 EB 58 7D 44 02 5A 79 01 5A 79 81 00 44  |.}D.X}D.Zy.Zy..D|
+  000160: EB 58 7D 44 00 5A 79 01 38 00 7D 44 41 5A 79 16  |.X}D.Zy.8.}DAZy.|
+  000170: 62 C8 62 C8 15 02 44 00 A6 FD 44 EB 58 7D 44 01  |b.b...D...D.X}D.|
+  000180: 5A 79 01 38 00 7D 44 42 5A 79 16 62 C8 62 C8 15  |Zy.8.}DBZy.b.b..|
+  000190: 02 44 00 A6 FD 4D FD 7D 44 01 5A 79 16 62 C8 15  |.D...M.}D.Zy.b..|
+  0001A0: 0E 29 BA 01 00 7D 29 1B 00 00 25 0C 03 44 2A 13  |.)...})...%..D*.|
+  0001B0: 02 44 00 13 FE 69 7A 7B 7C 27 44 35 4F 4B 0A 00  |.D...iz{|'D5OK..|
+  0001C0..0FFFFF: 1048128 bytes all zero
+
+=== Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
+
+=== EBR FEE000-FEFFFF (8 KB, stack) ===
+  FEE000..FEEBBF: 3008 bytes all zero
+  FEEBC0: 00 00 00 00 00 00 00 0A 00 00 30 00 00 00 00 00  |..........0.....|
+  FEEBD0: D6 EB FE BE 01 00 AB 01 00 00 00 00 F7 EB FE BF  |................|
+  FEEBE0: 01 00 41 42 00 64 00 00 0A 00 00 14 00 00 1E 00  |..AB.d..........|
+  FEEBF0: 00 28 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |.(..............|
+  FEEC00..FEFFFF: 5120 bytes all zero
+
+=== I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
+  FF0000 LED:  0x00  [........]  BTN S2: released
+  FF0010 IntEn:  0x00  UART RX IRQ: disabled
+  FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
+  UART TX log:   "D5OK\n"
+
+=== Validation ===
+  [PASS] CPU halted cleanly
+  [PASS] r0 = 42 (all array checks passed)
+  [PASS] UART output contains 'D5OK'
+
+Demo 5 PASSED

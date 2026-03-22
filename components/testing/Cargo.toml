@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "crates/cc24-test-compile",
+    "crates/cc24-test-golden",
+    "crates/cc24-test-cor24",
+    "crates/cc24-test-as24",
+]
+resolver = "3"

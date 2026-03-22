@@ -1,6 +1,6 @@
 //! as24 HTTP validation tests for basic programs.
 
-use super::assert_assembles_http;
+use cc24_test_as24::assert_assembles_http;
 
 #[test]
 #[ignore]

@@ -151,7 +151,7 @@ L11:
         add     r0,fp
         sw      r0,-21(fp)
         lw      r0,-21(fp)
-        lw      r0,0(r0)
+        lbu     r0,0(r0)
         push    r0
         lc      r0,77
         mov     r1,r0

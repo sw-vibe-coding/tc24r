@@ -73,20 +73,22 @@ _main:
 L5:
         lc      r0,1
         sw      r0,-6(fp)
+L6:
         lc      r0,0
         ceq     r0,z
         brf     L5
+L7:
         lw      r0,-6(fp)
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L7
+        brt     L9
         lc      r0,0
         sw      r0,-3(fp)
-L7:
+L9:
         lc      r0,0
         sw      r0,-9(fp)
-L8:
+L10:
         lw      r0,-9(fp)
         push    r0
         lc      r0,1
@@ -94,6 +96,7 @@ L8:
         pop     r0
         add     r0,r1
         sw      r0,-9(fp)
+L11:
         lw      r0,-9(fp)
         push    r0
         lc      r0,5
@@ -102,40 +105,11 @@ L8:
         cls     r0,r1
         mov     r0,c
         ceq     r0,z
-        brf     L8
+        brf     L10
+L12:
         lw      r0,-9(fp)
         push    r0
         lc      r0,5
-        mov     r1,r0
-        pop     r0
-        ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        mov     r0,c
-        ceq     r0,z
-        brt     L10
-        lc      r0,0
-        sw      r0,-3(fp)
-L10:
-        lc      r0,0
-        sw      r0,-12(fp)
-L11:
-        lw      r0,-12(fp)
-        push    r0
-        lc      r0,100
-        mov     r1,r0
-        pop     r0
-        cls     r1,r0
-        mov     r0,c
-        ceq     r0,z
-        brt     L12
-        la      r0,999
-        sw      r0,-12(fp)
-        bra     L11
-L12:
-        lw      r0,-12(fp)
-        push    r0
-        lc      r0,0
         mov     r1,r0
         pop     r0
         ceq     r0,r1
@@ -147,9 +121,39 @@ L12:
         lc      r0,0
         sw      r0,-3(fp)
 L14:
-        lw      r0,-3(fp)
+        lc      r0,0
+        sw      r0,-12(fp)
+L15:
+        lw      r0,-12(fp)
+        push    r0
+        lc      r0,100
+        mov     r1,r0
+        pop     r0
+        cls     r1,r0
+        mov     r0,c
         ceq     r0,z
         brt     L16
+        la      r0,999
+        sw      r0,-12(fp)
+        bra     L15
+L16:
+        lw      r0,-12(fp)
+        push    r0
+        lc      r0,0
+        mov     r1,r0
+        pop     r0
+        ceq     r0,r1
+        mov     r0,c
+        ceq     r0,z
+        mov     r0,c
+        ceq     r0,z
+        brt     L18
+        lc      r0,0
+        sw      r0,-3(fp)
+L18:
+        lw      r0,-3(fp)
+        ceq     r0,z
+        brt     L20
         la      r0,_S0
         push    r0
         la      r0,_puts
@@ -157,7 +161,7 @@ L14:
         add     sp,3
         lc      r0,42
         bra     L4
-L16:
+L20:
         lc      r0,0
         bra     L4
 L4:

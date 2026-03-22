@@ -249,7 +249,7 @@ L11:
         add     r0,r1
         mov     r1,r0
         pop     r0
-        sw      r0,0(r1)
+        sb      r0,0(r1)
         lc      r0,66
         push    r0
         lc      r0,-21
@@ -261,7 +261,7 @@ L11:
         add     r0,r1
         mov     r1,r0
         pop     r0
-        sw      r0,0(r1)
+        sb      r0,0(r1)
         lc      r0,0
         push    r0
         lc      r0,-21
@@ -273,7 +273,7 @@ L11:
         add     r0,r1
         mov     r1,r0
         pop     r0
-        sw      r0,0(r1)
+        sb      r0,0(r1)
         lc      r0,-21
         add     r0,fp
         push    r0
@@ -281,7 +281,7 @@ L11:
         mov     r1,r0
         pop     r0
         add     r0,r1
-        lw      r0,0(r0)
+        lbu     r0,0(r0)
         push    r0
         lc      r0,65
         mov     r1,r0
@@ -302,7 +302,7 @@ L13:
         mov     r1,r0
         pop     r0
         add     r0,r1
-        lw      r0,0(r0)
+        lbu     r0,0(r0)
         push    r0
         lc      r0,66
         mov     r1,r0

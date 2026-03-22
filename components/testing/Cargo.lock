@@ -29,31 +29,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cc24-codegen-tests"
-version = "0.1.0"
-dependencies = [
- "cc24-ast",
- "cc24-codegen",
- "cc24-lexer",
- "cc24-parser",
- "cc24-test-compile",
- "cc24-test-golden",
-]
-
-[[package]]
-name = "cc24-codegen-validate"
-version = "0.1.0"
-dependencies = [
- "cc24-codegen",
- "cc24-lexer",
- "cc24-parser",
- "cc24-test-as24",
- "cc24-test-compile",
- "cc24-test-cor24",
- "tempfile",
-]
-
-[[package]]
 name = "cc24-error"
 version = "0.1.0"
 dependencies = [

@@ -1,0 +1,132 @@
+=== cc24 Demo 6: Global Char, Global Pointer ===
+
+Source: demo6.c
+---
+// cc24 demo6 -- global char, global pointer, global array-like patterns
+//
+// New features / fixes:
+//   - Global char variables use .byte (not .word)
+//   - Global char load/store uses lbu/sb
+//   - Global pointer declarations (int *ptr)
+//   - Global pointer lookahead fix (int *ptr vs int func())
+//
+// Expected: r0 = 42, UART output: "D6OK"
+
+void putc(int c) {
+    *(char *)0xFF0100 = c;
+}
+
+void puts(char *s) {
+    while (*s) {
+        putc(*s);
+        s = s + 1;
+    }
+}
+
+char flag = 0;
+int counter = 0;
+int *cptr;
+
+int main() {
+    int ok = 1;
+
+    // global char: read initial value
+    if (flag != 0) { ok = 0; }
+
+    // global char: write and read back
+    flag = 1;
+    if (flag != 1) { ok = 0; }
+
+    // global int: write and read back
+    counter = 100;
+    if (counter != 100) { ok = 0; }
+
+    // global pointer: point to global int
+    cptr = &counter;
+    *cptr = 200;
+    if (counter != 200) { ok = 0; }
+
+    // global pointer: read through pointer
+    if (*cptr != 200) { ok = 0; }
+
+    if (ok == 1) {
+        puts("D6OK\n");
+        return 42;
+    }
+    return 0;
+}
+---
+
+Compiling demo6.c -> demo6.s
+
+Assembling and running on COR24 emulator...
+
+Assembled 284 bytes
+Running (speed: max IPS, time limit: 10s)...
+
+[UART TX @ 285] 'D'  (0x44)
+[UART TX @ 285] '6'  (0x36)
+[UART TX @ 285] 'O'  (0x4F)
+[UART TX @ 285] 'K'  (0x4B)
+[UART TX @ 285] '\n'
+
+UART output: D6OK
+
+
+Executed 285 instructions
+CPU halted (self-branch detected)
+
+=== Registers ===
+  PC:  0x000005    C: 1
+  r0:  0x00002A  (      42)
+  r1:  0x000005  (       5)
+  r2:  0x000000  (       0)
+  fp:  0x000000
+  sp:  0xFEEC00
+
+=== Emulator ===
+  Instructions: 286
+  Halted: true
+
+=== SRAM 000000-0FFFFF (1 MB) ===
+  000000: 29 43 00 00 25 13 FC 80 7F 7E 65 4D 09 7D 29 00  |)C..%....~eM.}).|
+  000010: 01 FF 5A 79 81 00 69 7A 7B 7C 27 80 7F 7E 65 4D  |..Zy..iz{|'..~eM|
+  000020: 09 38 00 C8 15 16 4D 09 38 00 7D 29 07 00 00 25  |.8....M.8.})...%|
+  000030: 0C 03 4D 09 7D 44 01 5A 79 01 A6 09 13 DF 69 7A  |..M.}D.Zy.....iz|
+  000040: 7B 7C 27 80 7F 7E 65 0C FD 44 01 A6 FD 2A 0F 01  |{|'..~e..D...*..|
+  000050: 00 39 00 7D 44 00 5A 79 16 62 C8 62 C8 15 02 44  |.9.}D.Zy.b.b...D|
+  000060: 00 A6 FD 44 01 2A 0F 01 00 81 00 2A 0F 01 00 39  |...D.*.....*...9|
+  000070: 00 7D 44 01 5A 79 16 62 C8 62 C8 15 02 44 00 A6  |.}D.Zy.b.b...D..|
+  000080: FD 44 64 2A 10 01 00 A4 00 2A 10 01 00 4B 00 7D  |.Dd*.....*...K.}|
+  000090: 44 64 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 29  |DdZy.b.b...D...)|
+  0000A0: 10 01 00 2A 13 01 00 A4 00 29 C8 00 00 7D 2A 13  |...*.....)...}*.|
+  0000B0: 01 00 4B 00 5A 79 A4 00 2A 10 01 00 4B 00 7D 29  |..K.Zy..*...K.})|
+  0000C0: C8 00 00 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD  |...Zy.b.b...D...|
+  0000D0: 2A 13 01 00 4B 00 4A 00 7D 29 C8 00 00 5A 79 16  |*...K.J.})...Zy.|
+  0000E0: 62 C8 62 C8 15 02 44 00 A6 FD 4D FD 7D 44 01 5A  |b.b...D...M.}D.Z|
+  0000F0: 79 16 62 C8 15 0E 29 16 01 00 7D 29 1B 00 00 25  |y.b...)...})...%|
+  000100: 0C 03 44 2A 13 02 44 00 13 FE 69 7A 7B 7C 27 01  |..D*..D...iz{|'.|
+  000110: C8 00 00 10 01 00 44 36 4F 4B 0A 00 00 00 00 00  |......D6OK......|
+  000120..0FFFFF: 1048288 bytes all zero
+
+=== Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
+
+=== EBR FEE000-FEFFFF (8 KB, stack) ===
+  FEE000..FEEBCF: 3024 bytes all zero
+  FEEBD0: 00 00 00 00 00 00 00 00 00 0A 00 00 30 00 00 00  |............0...|
+  FEEBE0: 00 00 E8 EB FE 1A 01 00 00 01 00 00 00 00 F7 EB  |................|
+  FEEBF0: FE 1B 01 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
+  FEEC00..FEFFFF: 5120 bytes all zero
+
+=== I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
+  FF0000 LED:  0x00  [........]  BTN S2: released
+  FF0010 IntEn:  0x00  UART RX IRQ: disabled
+  FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
+  UART TX log:   "D6OK\n"
+
+=== Validation ===
+  [PASS] CPU halted cleanly
+  [PASS] r0 = 42 (all global checks passed)
+  [PASS] UART output contains 'D6OK'
+
+Demo 6 PASSED

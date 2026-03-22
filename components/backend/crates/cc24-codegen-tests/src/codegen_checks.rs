@@ -1,6 +1,6 @@
 //! Structural checks on codegen output (non-golden-file tests).
 
-use super::compile;
+use cc24_test_compile::compile;
 
 #[test]
 fn codegen_emits_start() {

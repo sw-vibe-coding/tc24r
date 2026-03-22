@@ -1,0 +1,132 @@
+=== cc24 Demo 4: Software Divide and Modulo ===
+
+Source: demo4.c
+---
+// cc24 demo4 -- software divide and modulo
+//
+// New features:
+//   - Integer division (/) via software __cc24_div
+//   - Integer modulo (%) via software __cc24_mod
+//
+// Expected: r0 = 42, UART output: "D4OK"
+
+void putc(int c) {
+    *(char *)0xFF0100 = c;
+}
+
+void puts(char *s) {
+    while (*s) {
+        putc(*s);
+        s = s + 1;
+    }
+}
+
+int main() {
+    int ok = 1;
+
+    // basic division
+    if (17 / 5 != 3) { ok = 0; }
+    if (17 % 5 != 2) { ok = 0; }
+
+    // exact division
+    if (100 / 10 != 10) { ok = 0; }
+    if (100 % 10 != 0) { ok = 0; }
+
+    // divide by 1
+    if (42 / 1 != 42) { ok = 0; }
+    if (42 % 1 != 0) { ok = 0; }
+
+    // dividend < divisor
+    if (3 / 7 != 0) { ok = 0; }
+    if (3 % 7 != 3) { ok = 0; }
+
+    if (ok == 1) {
+        puts("D4OK\n");
+        return 42;
+    }
+    return 0;
+}
+---
+
+Compiling demo4.c -> demo4.s
+
+Assembling and running on COR24 emulator...
+
+Assembled 419 bytes
+Running (speed: max IPS, time limit: 10s)...
+
+[UART TX @ 975] 'D'  (0x44)
+[UART TX @ 975] '4'  (0x34)
+[UART TX @ 975] 'O'  (0x4F)
+[UART TX @ 975] 'K'  (0x4B)
+[UART TX @ 975] '\n'
+
+UART output: D4OK
+
+
+Executed 975 instructions
+CPU halted (self-branch detected)
+
+=== Registers ===
+  PC:  0x000005    C: 1
+  r0:  0x00002A  (      42)
+  r1:  0x000005  (       5)
+  r2:  0x000000  (       0)
+  fp:  0x000000
+  sp:  0xFEEC00
+
+=== Emulator ===
+  Instructions: 976
+  Halted: true
+
+=== SRAM 000000-0FFFFF (1 MB) ===
+  000000: 29 43 00 00 25 13 FC 80 7F 7E 65 4D 09 7D 29 00  |)C..%....~eM.}).|
+  000010: 01 FF 5A 79 81 00 69 7A 7B 7C 27 80 7F 7E 65 4D  |..Zy..iz{|'..~eM|
+  000020: 09 38 00 C8 15 16 4D 09 38 00 7D 29 07 00 00 25  |.8....M.8.})...%|
+  000030: 0C 03 4D 09 7D 44 01 5A 79 01 A6 09 13 DF 69 7A  |..M.}D.Zy.....iz|
+  000040: 7B 7C 27 80 7F 7E 65 0C FD 44 01 A6 FD 44 11 7D  |{|'..~e..D...D.}|
+  000050: 44 05 5A 79 7E 7D 29 72 01 00 25 0C 06 7D 44 03  |D.Zy~})r..%..}D.|
+  000060: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 11 7D  |Zy.b.b...D...D.}|
+  000070: 44 05 5A 79 7E 7D 29 8A 01 00 25 0C 06 7D 44 02  |D.Zy~})...%..}D.|
+  000080: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 64 7D  |Zy.b.b...D...Dd}|
+  000090: 44 0A 5A 79 7E 7D 29 72 01 00 25 0C 06 7D 44 0A  |D.Zy~})r..%..}D.|
+  0000A0: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 64 7D  |Zy.b.b...D...Dd}|
+  0000B0: 44 0A 5A 79 7E 7D 29 8A 01 00 25 0C 06 7D 44 00  |D.Zy~})...%..}D.|
+  0000C0: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 2A 7D  |Zy.b.b...D...D*}|
+  0000D0: 44 01 5A 79 7E 7D 29 72 01 00 25 0C 06 7D 44 2A  |D.Zy~})r..%..}D*|
+  0000E0: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 2A 7D  |Zy.b.b...D...D*}|
+  0000F0: 44 01 5A 79 7E 7D 29 8A 01 00 25 0C 06 7D 44 00  |D.Zy~})...%..}D.|
+  000100: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 03 7D  |Zy.b.b...D...D.}|
+  000110: 44 07 5A 79 7E 7D 29 72 01 00 25 0C 06 7D 44 00  |D.Zy~})r..%..}D.|
+  000120: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 44 03 7D  |Zy.b.b...D...D.}|
+  000130: 44 07 5A 79 7E 7D 29 8A 01 00 25 0C 06 7D 44 03  |D.Zy~})...%..}D.|
+  000140: 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD 4D FD 7D  |Zy.b.b...D...M.}|
+  000150: 44 01 5A 79 16 62 C8 15 0E 29 9D 01 00 7D 29 1B  |D.Zy.b...)...}).|
+  000160: 00 00 25 0C 03 44 2A 13 02 44 00 13 FE 69 7A 7B  |..%..D*..D...iz{|
+  000170: 7C 27 80 7F 7E 65 4D 09 51 0C 46 00 19 15 03 9C  ||'..~eM.Q.F.....|
+  000180: 0B 01 13 F6 57 69 7A 7B 7C 27 80 7F 7E 65 4D 09  |....Wiz{|'..~eM.|
+  000190: 51 0C 19 15 01 9C 13 F8 69 7A 7B 7C 27 44 34 4F  |Q.......iz{|'D4O|
+  0001A0: 4B 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00  |K...............|
+  0001B0..0FFFFF: 1048144 bytes all zero
+
+=== Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
+
+=== EBR FEE000-FEFFFF (8 KB, stack) ===
+  FEE000..FEEBCF: 3024 bytes all zero
+  FEEBD0: 00 00 00 00 00 00 00 00 00 0A 00 00 30 00 00 00  |............0...|
+  FEEBE0: 00 00 E8 EB FE A1 01 00 63 01 00 00 00 00 F7 EB  |........c.......|
+  FEEBF0: FE A2 01 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
+  FEEC00..FEFFFF: 5120 bytes all zero
+
+=== I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
+  FF0000 LED:  0x00  [........]  BTN S2: released
+  FF0010 IntEn:  0x00  UART RX IRQ: disabled
+  FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
+  UART TX log:   "D4OK\n"
+
+=== Validation ===
+  [PASS] CPU halted cleanly
+  [PASS] r0 = 42 (all div/mod checks passed)
+  [PASS] UART output contains 'D4OK'
+
+Demo 4 PASSED

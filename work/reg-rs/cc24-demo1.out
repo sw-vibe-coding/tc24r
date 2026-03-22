@@ -1,3 +1,77 @@
+=== cc24 Demo ===
+
+Source: demo.c
+---
+int counter = 0;
+
+int add(int a, int b) {
+    return a + b;
+}
+
+int fib(int n) {
+    if (n < 2) { return 1; }
+    return fib(n - 1) + fib(n - 2);
+}
+
+int bitops(int x) {
+    int a = x & 15;
+    int b = a | 32;
+    int c = b ^ 7;
+    int d = c << 1;
+    int e = d >> 1;
+    return e;
+}
+
+int main() {
+    int small = 42;
+    int large = 1000;
+
+    int sum = add(17, 25);
+
+    if (sum == small) {
+        counter = 1;
+    } else {
+        counter = 0;
+    }
+
+    int total = 0;
+    int i = 1;
+    while (i <= 5) {
+        total = total + i;
+        i = i + 1;
+    }
+
+    for (int j = 6; j <= 10; j = j + 1) {
+        total = total + j;
+    }
+
+    int f = fib(6);
+
+    int b = bitops(large);
+
+    int neg = -1;
+    int bitnot = ~0;
+    int lognot = !0;
+
+    int ok = 1;
+    if (sum != 42) { ok = 0; }
+    if (total != 55) { ok = 0; }
+    if (f != 13) { ok = 0; }
+    if (counter != 1) { ok = 0; }
+    if (neg != -1) { ok = 0; }
+    if (lognot != 1) { ok = 0; }
+
+    if (ok == 1) {
+        return 42;
+    }
+    return 0;
+}
+---
+
+Compiling demo.c -> demo.s
+
+Generated assembly:
+---
         .text
 
         .globl  _start
@@ -369,3 +443,84 @@ L5:
         .data
 _counter:
         .word   0
+---
+
+Assembling and running on COR24 emulator...
+
+Assembled 494 bytes
+Running (speed: max IPS, time limit: 10s)...
+
+
+Executed 1274 instructions
+CPU halted (self-branch detected)
+
+=== Registers ===
+  PC:  0x000005    C: 0
+  r0:  0x00002A  (      42)
+  r1:  0x000005  (       5)
+  r2:  0x000000  (       0)
+  fp:  0x000000
+  sp:  0xFEEC00
+
+=== Emulator ===
+  Instructions: 1275
+  Halted: true
+
+=== SRAM 000000-0FFFFF (1 MB) ===
+  000000: 29 9A 00 00 25 13 FC 80 7F 7E 65 4D 09 7D 4D 0C  |)...%....~eM.}M.|
+  000010: 5A 79 01 13 FE 69 7A 7B 7C 27 80 7F 7E 65 4D 09  |Zy...iz{|'..~eM.|
+  000020: 7D 44 02 5A 79 19 62 C8 15 02 44 01 13 24 4D 09  |}D.Zy.b...D..$M.|
+  000030: 7D 44 01 5A 79 9C 7D 29 1A 00 00 25 0C 03 7D 4D  |}D.Zy.})...%..}M|
+  000040: 09 7D 44 02 5A 79 9C 7D 29 1A 00 00 25 0C 03 5A  |.}D.Zy.})...%..Z|
+  000050: 79 01 13 FE 69 7A 7B 7C 27 80 7F 7E 65 0C F1 4D  |y...iz{|'..~e..M|
+  000060: 09 7D 44 0F 5A 79 0D A6 FD 4D FD 7D 44 20 5A 79  |.}D.Zy...M.}D Zy|
+  000070: 73 A6 FA 4D FA 7D 44 07 5A 79 B8 A6 F7 4D F7 7D  |s..M.}D.Zy...M.}|
+  000080: 44 01 5A 79 8A A6 F4 4D F4 7D 44 01 5A 79 96 A6  |D.Zy...M.}D.Zy..|
+  000090: F1 4D F1 13 FE 69 7A 7B 7C 27 80 7F 7E 65 0C DC  |.M...iz{|'..~e..|
+  0000A0: 44 2A A6 FD 29 E8 03 00 A6 FA 44 19 7D 44 11 7D  |D*..).....D.}D.}|
+  0000B0: 29 07 00 00 25 0C 06 A6 F7 4D F7 7D 4D FD 5A 79  |)...%....M.}M.Zy|
+  0000C0: 16 62 C8 15 08 44 01 2A EB 01 00 A4 00 13 06 44  |.b...D.*.......D|
+  0000D0: 00 2A EB 01 00 A4 00 44 00 A6 F4 44 01 A6 F1 4D  |.*.....D...D...M|
+  0000E0: F1 7D 44 05 5A 79 1B 62 C8 62 C8 15 14 4D F4 7D  |.}D.Zy.b.b...M.}|
+  0000F0: 4D F1 5A 79 01 A6 F4 4D F1 7D 44 01 5A 79 01 A6  |M.Zy...M.}D.Zy..|
+  000100: F1 13 DA 44 06 A6 EE 4D EE 7D 44 0A 5A 79 1B 62  |...D...M.}D.Zy.b|
+  000110: C8 62 C8 15 14 4D F4 7D 4D EE 5A 79 01 A6 F4 4D  |.b...M.}M.Zy...M|
+  000120: EE 7D 44 01 5A 79 01 A6 EE 13 DA 44 06 7D 29 1A  |.}D.Zy.....D.}).|
+  000130: 00 00 25 0C 03 A6 EB 4D FA 7D 29 59 00 00 25 0C  |..%....M.})Y..%.|
+  000140: 03 A6 E8 44 01 7D 44 00 7A 9C A6 E5 44 00 45 FF  |...D.}D.z...D.E.|
+  000150: B8 A6 E2 44 00 C8 62 A6 DF 44 01 A6 DC 4D F7 7D  |...D..b..D...M.}|
+  000160: 44 2A 5A 79 16 62 C8 62 C8 15 02 44 00 A6 DC 4D  |D*Zy.b.b...D...M|
+  000170: F4 7D 44 37 5A 79 16 62 C8 62 C8 15 02 44 00 A6  |.}D7Zy.b.b...D..|
+  000180: DC 4D EB 7D 44 0D 5A 79 16 62 C8 62 C8 15 02 44  |.M.}D.Zy.b.b...D|
+  000190: 00 A6 DC 2A EB 01 00 4B 00 7D 44 01 5A 79 16 62  |...*...K.}D.Zy.b|
+  0001A0: C8 62 C8 15 02 44 00 A6 DC 4D E5 7D 44 01 7D 44  |.b...D...M.}D.}D|
+  0001B0: 00 7A 9C 5A 79 16 62 C8 62 C8 15 02 44 00 A6 DC  |.z.Zy.b.b...D...|
+  0001C0: 4D DF 7D 44 01 5A 79 16 62 C8 62 C8 15 02 44 00  |M.}D.Zy.b.b...D.|
+  0001D0: A6 DC 4D DC 7D 44 01 5A 79 16 62 C8 15 02 44 2A  |..M.}D.Zy.b...D*|
+  0001E0: 13 02 44 00 13 FE 69 7A 7B 7C 27 01 00 00 00 00  |..D...iz{|'.....|
+  0001F0..0FFFFF: 1048080 bytes all zero
+
+=== Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
+
+=== EBR FEE000-FEFFFF (8 KB, stack) ===
+  FEE000..FEEB7F: 2944 bytes all zero
+  FEEB80: 00 00 00 00 00 00 00 00 4D 00 00 00 00 00 00 00  |........M.......|
+  FEEB90: 00 4D 00 00 00 00 00 00 00 00 4D 00 00 00 00 00  |.M........M.....|
+  FEEBA0: A9 EB FE 00 00 00 01 00 00 4D 00 00 00 00 00 B8  |.........M......|
+  FEEBB0: EB FE 02 00 00 5E 00 00 2F 00 00 5E 00 00 2F 00  |.....^../..^../.|
+  FEEBC0: 00 28 00 00 08 00 00 3F 01 00 00 00 00 01 00 00  |.(.....?........|
+  FEEBD0: 01 00 00 01 00 00 01 00 00 FF FF FF FF FF FF 2F  |.............../|
+  FEEBE0: 00 00 0D 00 00 0B 00 00 06 00 00 37 00 00 2A 00  |...........7..*.|
+  FEEBF0: 00 E8 03 00 2A 00 00 05 00 00 00 00 00 00 00 00  |....*...........|
+  FEEC00..FEFFFF: 5120 bytes all zero
+
+=== I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
+  FF0000 LED:  0x00  [........]  BTN S2: released
+  FF0010 IntEn:  0x00  UART RX IRQ: disabled
+  FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
+
+=== Validation ===
+  [PASS] CPU halted cleanly
+  [PASS] r0 = 42 (all checks passed in C code)
+
+Demo PASSED

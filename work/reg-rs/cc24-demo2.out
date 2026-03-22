@@ -1,0 +1,367 @@
+=== cc24 Demo 2: Pointers, Char, MMIO ===
+
+Source: demo2.c
+---
+// cc24 demo2 -- Phase 4 features: char, pointers, casts, MMIO
+//
+// New features since demo.c:
+//   - C comments (// and /* */)
+//   - char type
+//   - pointer declarations (int *, char *)
+//   - address-of (&x)
+//   - pointer dereference (*p) read and write
+//   - cast expressions ((char *)addr)
+//   - MMIO: LED D2 control, UART TX output
+//
+// COR24-TB hardware: 1 LED (D2), 1 button (S2), UART
+//   LED at 0xFF0000, active-low: bit 0 = 0 turns LED on, 1 turns off
+//   UART data at 0xFF0100
+//
+// Expected result after execution:
+//   r0 = 42
+//   LED = 0x00 (D2 on, active-low)
+//   UART output: "OK"
+
+/* MMIO helpers */
+void led_on() {
+    *(char *)0xFF0000 = 0;  /* active-low: 0 = LED on */
+}
+
+void led_off() {
+    *(char *)0xFF0000 = 1;  /* active-low: 1 = LED off */
+}
+
+void uart_putc(int c) {
+    *(char *)0xFF0100 = c;
+}
+
+int main() {
+    int ok = 1;
+
+    // --- char type ---
+    char a = 65;
+    char b = 66;
+    if (a != 65) { ok = 0; }
+    if (b != 66) { ok = 0; }
+
+    // --- pointer to int: read via dereference ---
+    int x = 123;
+    int *px = &x;
+    if (*px != 123) { ok = 0; }
+
+    // --- pointer write: modify through pointer ---
+    *px = 456;
+    if (x != 456) { ok = 0; }
+
+    // --- pointer to char ---
+    char ch = 77;
+    char *pc = &ch;
+    if (*pc != 77) { ok = 0; }
+
+    // --- MMIO: turn on LED D2 ---
+    led_on();
+
+    // --- UART output ---
+    if (ok == 1) {
+        uart_putc(79);   /* 'O' */
+        uart_putc(75);   /* 'K' */
+        uart_putc(10);   /* newline */
+    }
+
+    if (ok == 1) {
+        return 42;
+    }
+    return 0;
+}
+---
+
+Compiling demo2.c -> demo2.s
+
+Generated assembly:
+---
+        .text
+
+        .globl  _start
+_start:
+        la      r0,_main
+        jal     r1,(r0)
+_halt:
+        bra     _halt
+
+        .globl  _led_on
+_led_on:
+        push    fp
+        push    r2
+        push    r1
+        mov     fp,sp
+        lc      r0,0
+        push    r0
+        la      r0,16711680
+        mov     r1,r0
+        pop     r0
+        sb      r0,0(r1)
+L0:
+        mov     sp,fp
+        pop     r1
+        pop     r2
+        pop     fp
+        jmp     (r1)
+
+        .globl  _led_off
+_led_off:
+        push    fp
+        push    r2
+        push    r1
+        mov     fp,sp
+        lc      r0,1
+        push    r0
+        la      r0,16711680
+        mov     r1,r0
+        pop     r0
+        sb      r0,0(r1)
+L1:
+        mov     sp,fp
+        pop     r1
+        pop     r2
+        pop     fp
+        jmp     (r1)
+
+        .globl  _uart_putc
+_uart_putc:
+        push    fp
+        push    r2
+        push    r1
+        mov     fp,sp
+        lw      r0,9(fp)
+        push    r0
+        la      r0,16711936
+        mov     r1,r0
+        pop     r0
+        sb      r0,0(r1)
+L2:
+        mov     sp,fp
+        pop     r1
+        pop     r2
+        pop     fp
+        jmp     (r1)
+
+        .globl  _main
+_main:
+        push    fp
+        push    r2
+        push    r1
+        mov     fp,sp
+        add     sp,-21
+        lc      r0,1
+        sw      r0,-3(fp)
+        lc      r0,65
+        sw      r0,-6(fp)
+        lc      r0,66
+        sw      r0,-9(fp)
+        lw      r0,-6(fp)
+        push    r0
+        lc      r0,65
+        mov     r1,r0
+        pop     r0
+        ceq     r0,r1
+        mov     r0,c
+        ceq     r0,z
+        mov     r0,c
+        ceq     r0,z
+        brt     L5
+        lc      r0,0
+        sw      r0,-3(fp)
+L5:
+        lw      r0,-9(fp)
+        push    r0
+        lc      r0,66
+        mov     r1,r0
+        pop     r0
+        ceq     r0,r1
+        mov     r0,c
+        ceq     r0,z
+        mov     r0,c
+        ceq     r0,z
+        brt     L7
+        lc      r0,0
+        sw      r0,-3(fp)
+L7:
+        lc      r0,123
+        sw      r0,-12(fp)
+        lc      r0,-12
+        add     r0,fp
+        sw      r0,-15(fp)
+        lw      r0,-15(fp)
+        lw      r0,0(r0)
+        push    r0
+        lc      r0,123
+        mov     r1,r0
+        pop     r0
+        ceq     r0,r1
+        mov     r0,c
+        ceq     r0,z
+        mov     r0,c
+        ceq     r0,z
+        brt     L9
+        lc      r0,0
+        sw      r0,-3(fp)
+L9:
+        la      r0,456
+        push    r0
+        lw      r0,-15(fp)
+        mov     r1,r0
+        pop     r0
+        sw      r0,0(r1)
+        lw      r0,-12(fp)
+        push    r0
+        la      r0,456
+        mov     r1,r0
+        pop     r0
+        ceq     r0,r1
+        mov     r0,c
+        ceq     r0,z
+        mov     r0,c
+        ceq     r0,z
+        brt     L11
+        lc      r0,0
+        sw      r0,-3(fp)
+L11:
+        lc      r0,77
+        sw      r0,-18(fp)
+        lc      r0,-18
+        add     r0,fp
+        sw      r0,-21(fp)
+        lw      r0,-21(fp)
+        lbu     r0,0(r0)
+        push    r0
+        lc      r0,77
+        mov     r1,r0
+        pop     r0
+        ceq     r0,r1
+        mov     r0,c
+        ceq     r0,z
+        mov     r0,c
+        ceq     r0,z
+        brt     L13
+        lc      r0,0
+        sw      r0,-3(fp)
+L13:
+        la      r0,_led_on
+        jal     r1,(r0)
+        lw      r0,-3(fp)
+        push    r0
+        lc      r0,1
+        mov     r1,r0
+        pop     r0
+        ceq     r0,r1
+        mov     r0,c
+        ceq     r0,z
+        brt     L15
+        lc      r0,79
+        push    r0
+        la      r0,_uart_putc
+        jal     r1,(r0)
+        add     sp,3
+        lc      r0,75
+        push    r0
+        la      r0,_uart_putc
+        jal     r1,(r0)
+        add     sp,3
+        lc      r0,10
+        push    r0
+        la      r0,_uart_putc
+        jal     r1,(r0)
+        add     sp,3
+L15:
+        lw      r0,-3(fp)
+        push    r0
+        lc      r0,1
+        mov     r1,r0
+        pop     r0
+        ceq     r0,r1
+        mov     r0,c
+        ceq     r0,z
+        brt     L17
+        lc      r0,42
+        bra     L3
+L17:
+        lc      r0,0
+        bra     L3
+L3:
+        mov     sp,fp
+        pop     r1
+        pop     r2
+        pop     fp
+        jmp     (r1)
+---
+
+Assembling and running on COR24 emulator...
+
+Assembled 282 bytes
+Running (speed: max IPS, time limit: 10s)...
+
+[UART TX @ 188] 'O'  (0x4F)
+[UART TX @ 188] 'K'  (0x4B)
+[UART TX @ 188] '\n'
+
+UART output: OK
+
+
+Executed 188 instructions
+CPU halted (self-branch detected)
+
+=== Registers ===
+  PC:  0x000005    C: 0
+  r0:  0x00002A  (      42)
+  r1:  0x000005  (       5)
+  r2:  0x000000  (       0)
+  fp:  0x000000
+  sp:  0xFEEC00
+
+=== Emulator ===
+  Instructions: 189
+  Halted: true
+
+=== SRAM 000000-0FFFFF (1 MB) ===
+  000000: 29 43 00 00 25 13 FC 80 7F 7E 65 44 00 7D 29 00  |)C..%....~eD.}).|
+  000010: 00 FF 5A 79 81 00 69 7A 7B 7C 27 80 7F 7E 65 44  |..Zy..iz{|'..~eD|
+  000020: 01 7D 29 00 00 FF 5A 79 81 00 69 7A 7B 7C 27 80  |.})...Zy..iz{|'.|
+  000030: 7F 7E 65 4D 09 7D 29 00 01 FF 5A 79 81 00 69 7A  |.~eM.})...Zy..iz|
+  000040: 7B 7C 27 80 7F 7E 65 0C EB 44 01 A6 FD 44 41 A6  |{|'..~e..D...DA.|
+  000050: FA 44 42 A6 F7 4D FA 7D 44 41 5A 79 16 62 C8 62  |.DB..M.}DAZy.b.b|
+  000060: C8 15 02 44 00 A6 FD 4D F7 7D 44 42 5A 79 16 62  |...D...M.}DBZy.b|
+  000070: C8 62 C8 15 02 44 00 A6 FD 44 7B A6 F4 44 F4 58  |.b...D...D{..D.X|
+  000080: A6 F1 4D F1 4A 00 7D 44 7B 5A 79 16 62 C8 62 C8  |..M.J.}D{Zy.b.b.|
+  000090: 15 02 44 00 A6 FD 29 C8 01 00 7D 4D F1 5A 79 A4  |..D...)...}M.Zy.|
+  0000A0: 00 4D F4 7D 29 C8 01 00 5A 79 16 62 C8 62 C8 15  |.M.})...Zy.b.b..|
+  0000B0: 02 44 00 A6 FD 44 4D A6 EE 44 EE 58 A6 EB 4D EB  |.D...DM..D.X..M.|
+  0000C0: 38 00 7D 44 4D 5A 79 16 62 C8 62 C8 15 02 44 00  |8.}DMZy.b.b...D.|
+  0000D0: A6 FD 29 07 00 00 25 4D FD 7D 44 01 5A 79 16 62  |..)...%M.}D.Zy.b|
+  0000E0: C8 15 1C 44 4F 7D 29 2F 00 00 25 0C 03 44 4B 7D  |...DO})/..%..DK}|
+  0000F0: 29 2F 00 00 25 0C 03 44 0A 7D 29 2F 00 00 25 0C  |)/..%..D.})/..%.|
+  000100: 03 4D FD 7D 44 01 5A 79 16 62 C8 15 02 44 2A 13  |.M.}D.Zy.b...D*.|
+  000110: 02 44 00 13 FE 69 7A 7B 7C 27 00 00 00 00 00 00  |.D...iz{|'......|
+  000120..0FFFFF: 1048288 bytes all zero
+
+=== Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
+
+=== EBR FEE000-FEFFFF (8 KB, stack) ===
+  FEE000..FEEBCF: 3024 bytes all zero
+  FEEBD0: 00 00 00 0A 00 00 FF 00 00 00 00 00 F7 EB FE 01  |................|
+  FEEBE0: 00 00 E5 EB FE 4D 00 00 EB EB FE C8 01 00 42 00  |.....M........B.|
+  FEEBF0: 00 41 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |.A..............|
+  FEEC00..FEFFFF: 5120 bytes all zero
+
+=== I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===
+  FF0000 LED:  0x00  [........]  BTN S2: released
+  FF0010 IntEn:  0x00  UART RX IRQ: disabled
+  FF0100 UART:   status=0x02  RX ready: no  CTS: yes  TX busy: no
+  UART TX log:   "OK\n"
+
+=== Validation ===
+  [PASS] CPU halted cleanly
+  [PASS] r0 = 42 (all C checks passed)
+  [PASS] LED D2 on (0x00, active-low)
+  [PASS] UART output contains 'OK'
+
+Demo 2 PASSED

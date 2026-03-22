@@ -1,6 +1,6 @@
 //! cor24-run validation tests for pointer and char programs.
 
-use super::assert_assembles_cor24;
+use cc24_test_cor24::assert_assembles_cor24;
 
 #[test]
 fn cor24_pointer_deref() {

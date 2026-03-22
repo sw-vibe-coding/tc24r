@@ -1,6 +1,6 @@
 //! Golden file tests comparing compiler output to expected assembly.
 
-use super::golden_test;
+use cc24_test_golden::golden_test;
 
 #[test]
 fn golden_return_0() {
