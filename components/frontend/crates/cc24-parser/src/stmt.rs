@@ -1,6 +1,6 @@
 //! Statement and block parsing.
 
-use cc24_ast::{Block, Stmt};
+use cc24_ast::{Block, Stmt, Type};
 use cc24_error::CompileError;
 use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
@@ -52,8 +52,22 @@ fn parse_return(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
 }
 
 pub fn parse_local_decl(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
-    let ty = parse_type(ts)?;
+    let base_ty = parse_type(ts)?;
     let name = ts.expect_ident()?;
+    // Check for array: int a[N];
+    let ty = if ts.eat(TokenKind::LBracket) {
+        let TokenKind::IntLit(size) = ts.peek().kind else {
+            return Err(CompileError::new(
+                "expected array size",
+                Some(ts.current_span()),
+            ));
+        };
+        ts.advance();
+        ts.expect(TokenKind::RBracket)?;
+        Type::Array(Box::new(base_ty), size as usize)
+    } else {
+        base_ty
+    };
     let init = if ts.eat(TokenKind::Assign) {
         Some(parse_expr(ts)?)
     } else {

@@ -28,6 +28,11 @@ impl Codegen {
     }
 
     fn gen_load(&mut self, name: &str) {
+        // Array names decay to pointer to first element
+        if let Some(Type::Array(..)) = self.local_types.get(name) {
+            self.gen_addr_of(name);
+            return;
+        }
         if self.globals.contains(name) {
             self.emit(&format!("        la      r1,_{name}"));
             self.emit("        lw      r0,0(r1)");

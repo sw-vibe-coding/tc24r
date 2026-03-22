@@ -51,3 +51,24 @@ fn parse_char_local() {
     let stmts = &program.functions[0].body.stmts;
     assert!(matches!(&stmts[0], Stmt::LocalDecl { ty: Type::Char, .. }));
 }
+
+#[test]
+fn parse_array_decl() {
+    let program = parse_source("int main() { int a[3]; return 0; }");
+    let stmts = &program.functions[0].body.stmts;
+    assert!(matches!(
+        &stmts[0],
+        Stmt::LocalDecl {
+            ty: Type::Array(_, 3),
+            ..
+        }
+    ));
+}
+
+#[test]
+fn parse_array_index() {
+    let program = parse_source("int main() { int a[2]; a[0] = 5; return a[1]; }");
+    let stmts = &program.functions[0].body.stmts;
+    assert!(matches!(&stmts[1], Stmt::Expr(Expr::DerefAssign { .. })));
+    assert!(matches!(&stmts[2], Stmt::Return(Expr::Deref(_))));
+}

@@ -122,5 +122,16 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         ts.expect(TokenKind::RParen)?;
         return Ok(Expr::Call { name, args });
     }
+    // Array indexing: a[i] -> *(a + i)
+    if ts.eat(TokenKind::LBracket) {
+        let index = parse_expr(ts)?;
+        ts.expect(TokenKind::RBracket)?;
+        let base = Expr::Ident(name);
+        return Ok(Expr::Deref(Box::new(Expr::BinOp {
+            op: cc24_ast::BinOp::Add,
+            lhs: Box::new(base),
+            rhs: Box::new(index),
+        })));
+    }
     Ok(Expr::Ident(name))
 }

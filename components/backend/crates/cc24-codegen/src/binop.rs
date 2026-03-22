@@ -7,11 +7,18 @@ use crate::Codegen;
 /// Infer the type of an expression from codegen state.
 pub(crate) fn expr_type(cg: &Codegen, expr: &Expr) -> Option<Type> {
     match expr {
-        Expr::Ident(name) => cg
-            .local_types
-            .get(name)
-            .or_else(|| cg.global_types.get(name))
-            .cloned(),
+        Expr::Ident(name) => {
+            let ty = cg
+                .local_types
+                .get(name)
+                .or_else(|| cg.global_types.get(name))
+                .cloned()?;
+            // Array decays to pointer to element
+            match ty {
+                Type::Array(inner, _) => Some(Type::Ptr(inner)),
+                other => Some(other),
+            }
+        }
         Expr::Cast { ty, .. } => Some(ty.clone()),
         Expr::AddrOf(name) => {
             let inner = expr_type(cg, &Expr::Ident(name.clone()))?;
@@ -22,6 +29,24 @@ pub(crate) fn expr_type(cg: &Codegen, expr: &Expr) -> Option<Type> {
             _ => None,
         },
         Expr::StringLit(_) => Some(Type::Ptr(Box::new(Type::Char))),
+        Expr::BinOp {
+            op: BinOp::Add,
+            lhs,
+            ..
+        }
+        | Expr::BinOp {
+            op: BinOp::Sub,
+            lhs,
+            ..
+        } => {
+            // Pointer arithmetic preserves pointer type
+            let lhs_ty = expr_type(cg, lhs)?;
+            if matches!(lhs_ty, Type::Ptr(_)) {
+                Some(lhs_ty)
+            } else {
+                None
+            }
+        }
         _ => None,
     }
 }

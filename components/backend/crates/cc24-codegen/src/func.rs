@@ -66,7 +66,8 @@ impl Codegen {
         match stmt {
             Stmt::LocalDecl { name, ty, .. } => {
                 if !self.locals.contains_key(name) {
-                    self.locals_size += 3;
+                    let alloc = ty.size().max(3); // min 3 (word-aligned)
+                    self.locals_size += alloc;
                     let offset = -self.locals_size;
                     self.locals.insert(name.clone(), offset);
                     self.local_types.insert(name.clone(), ty.clone());
