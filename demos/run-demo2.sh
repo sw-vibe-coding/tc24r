@@ -62,10 +62,10 @@ else
     PASS=false
 fi
 
-if [ "$LED" = "0xAA" ]; then
-    echo "  [PASS] LED = 0xAA (alternating bit pattern written)"
+if [ "$LED" = "0x00" ]; then
+    echo "  [PASS] LED D2 on (0x00, active-low)"
 else
-    echo "  [FAIL] LED = $LED (expected 0xAA)"
+    echo "  [FAIL] LED = $LED (expected 0x00 for D2 on)"
     PASS=false
 fi
 

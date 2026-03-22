@@ -7,23 +7,28 @@
 //   - address-of (&x)
 //   - pointer dereference (*p) read and write
 //   - cast expressions ((char *)addr)
-//   - MMIO: LED write, UART TX output
+//   - MMIO: LED D2 control, UART TX output
+//
+// COR24-TB hardware: 1 LED (D2), 1 button (S2), UART
+//   LED at 0xFF0000, active-low: bit 0 = 0 turns LED on, 1 turns off
+//   UART data at 0xFF0100
 //
 // Expected result after execution:
 //   r0 = 42
-//   LED = 0xAA (alternating pattern)
+//   LED = 0x00 (D2 on, active-low)
 //   UART output: "OK"
 
-/* MMIO addresses (COR24 memory map) */
-int LED_ADDR = 16711680;   /* 0xFF0000 */
-int UART_ADDR = 16711936;  /* 0xFF0100 */
+/* MMIO helpers */
+void led_on() {
+    *(char *)0xFF0000 = 0;  /* active-low: 0 = LED on */
+}
 
-void led_write(int val) {
-    *(char *)16711680 = val;
+void led_off() {
+    *(char *)0xFF0000 = 1;  /* active-low: 1 = LED off */
 }
 
 void uart_putc(int c) {
-    *(char *)16711936 = c;
+    *(char *)0xFF0100 = c;
 }
 
 int main() {
@@ -49,9 +54,8 @@ int main() {
     char *pc = &ch;
     if (*pc != 77) { ok = 0; }
 
-    // --- cast: int used as address ---
-    /* Write alternating bit pattern to LED register */
-    led_write(170);  /* 0xAA = 10101010 */
+    // --- MMIO: turn on LED D2 ---
+    led_on();
 
     // --- UART output ---
     if (ok == 1) {

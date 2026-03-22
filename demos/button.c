@@ -1,6 +1,6 @@
+// Read button S2 state (bit 0: 0=pressed, 1=released)
 int button_pressed() {
-    char *gpio = (char *)16711680;
-    return *gpio & 1;
+    return *(char *)0xFF0000 & 1;
 }
 
 int main() {

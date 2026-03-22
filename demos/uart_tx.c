@@ -1,11 +1,12 @@
+// Send characters via UART TX
 void putc(int c) {
-    *(char *)16711936 = c;
+    *(char *)0xFF0100 = c;
 }
 
 int main() {
-    putc(72);
-    putc(105);
-    putc(33);
-    putc(10);
+    putc(72);   // 'H'
+    putc(105);  // 'i'
+    putc(33);   // '!'
+    putc(10);   // newline
     return 0;
 }

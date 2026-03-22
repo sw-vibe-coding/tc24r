@@ -7,19 +7,38 @@ _start:
 _halt:
         bra     _halt
 
-        .globl  _led_write
-_led_write:
+        .globl  _led_on
+_led_on:
         push    fp
         push    r2
         push    r1
         mov     fp,sp
-        lw      r0,9(fp)
+        lc      r0,0
         push    r0
         la      r0,16711680
         mov     r1,r0
         pop     r0
         sb      r0,0(r1)
 L0:
+        mov     sp,fp
+        pop     r1
+        pop     r2
+        pop     fp
+        jmp     (r1)
+
+        .globl  _led_off
+_led_off:
+        push    fp
+        push    r2
+        push    r1
+        mov     fp,sp
+        lc      r0,1
+        push    r0
+        la      r0,16711680
+        mov     r1,r0
+        pop     r0
+        sb      r0,0(r1)
+L1:
         mov     sp,fp
         pop     r1
         pop     r2
@@ -38,7 +57,7 @@ _uart_putc:
         mov     r1,r0
         pop     r0
         sb      r0,0(r1)
-L1:
+L2:
         mov     sp,fp
         pop     r1
         pop     r2
@@ -68,10 +87,10 @@ _main:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L4
+        brt     L5
         lc      r0,0
         sw      r0,-3(fp)
-L4:
+L5:
         lw      r0,-9(fp)
         push    r0
         lc      r0,66
@@ -82,10 +101,10 @@ L4:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L6
+        brt     L7
         lc      r0,0
         sw      r0,-3(fp)
-L6:
+L7:
         lc      r0,123
         sw      r0,-12(fp)
         lc      r0,-12
@@ -102,10 +121,10 @@ L6:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L8
+        brt     L9
         lc      r0,0
         sw      r0,-3(fp)
-L8:
+L9:
         la      r0,456
         push    r0
         lw      r0,-15(fp)
@@ -122,10 +141,10 @@ L8:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L10
+        brt     L11
         lc      r0,0
         sw      r0,-3(fp)
-L10:
+L11:
         lc      r0,77
         sw      r0,-18(fp)
         lc      r0,-18
@@ -142,15 +161,12 @@ L10:
         ceq     r0,z
         mov     r0,c
         ceq     r0,z
-        brt     L12
+        brt     L13
         lc      r0,0
         sw      r0,-3(fp)
-L12:
-        la      r0,170
-        push    r0
-        la      r0,_led_write
+L13:
+        la      r0,_led_on
         jal     r1,(r0)
-        add     sp,3
         lw      r0,-3(fp)
         push    r0
         lc      r0,1
@@ -159,7 +175,7 @@ L12:
         ceq     r0,r1
         mov     r0,c
         ceq     r0,z
-        brt     L14
+        brt     L15
         lc      r0,79
         push    r0
         la      r0,_uart_putc
@@ -175,7 +191,7 @@ L12:
         la      r0,_uart_putc
         jal     r1,(r0)
         add     sp,3
-L14:
+L15:
         lw      r0,-3(fp)
         push    r0
         lc      r0,1
@@ -184,21 +200,15 @@ L14:
         ceq     r0,r1
         mov     r0,c
         ceq     r0,z
-        brt     L16
+        brt     L17
         lc      r0,42
-        bra     L2
-L16:
+        bra     L3
+L17:
         lc      r0,0
-        bra     L2
-L2:
+        bra     L3
+L3:
         mov     sp,fp
         pop     r1
         pop     r2
         pop     fp
         jmp     (r1)
-
-        .data
-_LED_ADDR:
-        .word   16711680
-_UART_ADDR:
-        .word   16711936

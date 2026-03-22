@@ -25,6 +25,13 @@ impl Lexer<'_> {
     }
 
     fn read_number(&mut self, start: usize) -> Result<Token, CompileError> {
+        // Check for 0x hex prefix
+        if self.pos + 1 < self.source.len()
+            && self.source[self.pos] == b'0'
+            && (self.source[self.pos + 1] == b'x' || self.source[self.pos + 1] == b'X')
+        {
+            return self.read_hex(start);
+        }
         while self.pos < self.source.len() && self.source[self.pos].is_ascii_digit() {
             self.pos += 1;
         }
@@ -32,6 +39,24 @@ impl Lexer<'_> {
         let value: i32 = text.parse().map_err(|_| {
             CompileError::new(
                 format!("invalid integer literal: {text}"),
+                Some(Span::new(start, self.pos - start)),
+            )
+        })?;
+        Ok(Token {
+            kind: TokenKind::IntLit(value),
+            span: Span::new(start, self.pos - start),
+        })
+    }
+
+    fn read_hex(&mut self, start: usize) -> Result<Token, CompileError> {
+        self.pos += 2; // skip 0x
+        while self.pos < self.source.len() && self.source[self.pos].is_ascii_hexdigit() {
+            self.pos += 1;
+        }
+        let hex_text = std::str::from_utf8(&self.source[start + 2..self.pos]).unwrap();
+        let value = i32::from_str_radix(hex_text, 16).map_err(|_| {
+            CompileError::new(
+                format!("invalid hex literal: 0x{hex_text}"),
                 Some(Span::new(start, self.pos - start)),
             )
         })?;
