@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "crates/cc24-type-infer",
+    "crates/cc24-ops-arithmetic",
+    "crates/cc24-ops-bitwise",
+    "crates/cc24-ops-compare",
+    "crates/cc24-ops-logical",
+    "crates/cc24-ops-divmod",
+    "crates/cc24-ops-unary",
+    "crates/cc24-ops-incdec",
+]
+resolver = "3"
