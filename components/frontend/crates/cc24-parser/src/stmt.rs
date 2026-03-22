@@ -1,6 +1,6 @@
 //! Statement and block parsing.
 
-use cc24_ast::{Block, Stmt, Type};
+use cc24_ast::{Block, Expr, Stmt, Type};
 use cc24_error::CompileError;
 use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
@@ -57,6 +57,10 @@ pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
 }
 
 fn parse_return(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
+    // void return: return;
+    if ts.eat(TokenKind::Semicolon) {
+        return Ok(Stmt::Return(Expr::IntLit(0)));
+    }
     let expr = parse_expr(ts)?;
     ts.expect(TokenKind::Semicolon)?;
     Ok(Stmt::Return(expr))
