@@ -21,6 +21,7 @@ pub struct Codegen {
     pub(crate) globals: HashSet<String>,
     pub(crate) global_types: HashMap<String, Type>,
     pub(crate) return_label: String,
+    pub(crate) string_literals: Vec<String>,
 }
 
 impl Codegen {
@@ -41,7 +42,7 @@ impl Codegen {
             self.emit("");
             self.gen_function(func);
         }
-        self.emit_globals(program);
+        self.emit_data_section(program);
         self.out.clone()
     }
 }

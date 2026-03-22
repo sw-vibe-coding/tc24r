@@ -24,6 +24,15 @@ fn cor24_char_local() {
 }
 
 #[test]
+fn cor24_string_constant() {
+    // String literal should produce UART output
+    assert_assembles_cor24(
+        "string_const",
+        "void putc(int c) { *(char *)0xFF0100 = c; } int main() { char *s = \"AB\"; putc(*s); return 0; }",
+    );
+}
+
+#[test]
 fn cor24_char_ptr_arithmetic() {
     // char *p points to a char, p + 1 should advance by 1 byte
     assert_assembles_cor24(

@@ -34,8 +34,10 @@ impl Codegen {
         self.emit("        bra     _halt");
     }
 
-    pub(crate) fn emit_globals(&mut self, program: &Program) {
-        if program.globals.is_empty() {
+    pub(crate) fn emit_data_section(&mut self, program: &Program) {
+        let has_globals = !program.globals.is_empty();
+        let has_strings = !self.string_literals.is_empty();
+        if !has_globals && !has_strings {
             return;
         }
         self.emit("");
@@ -46,6 +48,12 @@ impl Codegen {
                 self.emit(&format!("        .word   {val}"));
             } else {
                 self.emit("        .word   0");
+            }
+        }
+        for (i, s) in self.string_literals.clone().iter().enumerate() {
+            self.emit(&format!("_S{i}:"));
+            for b in s.bytes().chain(std::iter::once(0)) {
+                self.emit(&format!("        .byte   {b}"));
             }
         }
     }

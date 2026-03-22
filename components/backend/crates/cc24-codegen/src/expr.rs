@@ -3,26 +3,18 @@
 use cc24_ast::{Expr, Type};
 
 use crate::Codegen;
-
-/// Extract the pointee type from a pointer expression, if known.
-fn pointee_type(expr: &Expr) -> Option<&Type> {
-    if let Expr::Cast {
-        ty: Type::Ptr(inner),
-        ..
-    } = expr
-    {
-        Some(inner)
-    } else {
-        None
-    }
-}
+use crate::binop::expr_type;
 
 impl Codegen {
     /// Generate code for an expression. Result is left in r0.
     pub(crate) fn gen_expr(&mut self, expr: &Expr) {
         match expr {
             Expr::IntLit(val) => self.load_immediate(*val),
-            Expr::StringLit(_) => {}
+            Expr::StringLit(s) => {
+                let idx = self.string_literals.len();
+                self.string_literals.push(s.clone());
+                self.emit(&format!("        la      r0,_S{idx}"));
+            }
             Expr::Ident(name) => self.gen_load(name),
             Expr::Assign { name, value } => self.gen_assign(name, value),
             Expr::Call { name, args } => self.gen_call(name, args),
@@ -68,7 +60,7 @@ impl Codegen {
     }
 
     fn gen_deref(&mut self, ptr: &Expr) {
-        let is_byte = matches!(pointee_type(ptr), Some(Type::Char));
+        let is_byte = self.is_char_ptr(ptr);
         self.gen_expr(ptr);
         if is_byte {
             self.emit("        lbu     r0,0(r0)");
@@ -78,7 +70,7 @@ impl Codegen {
     }
 
     fn gen_deref_assign(&mut self, ptr: &Expr, value: &Expr) {
-        let is_byte = matches!(pointee_type(ptr), Some(Type::Char));
+        let is_byte = self.is_char_ptr(ptr);
         self.gen_expr(value);
         self.emit("        push    r0");
         self.gen_expr(ptr);
@@ -89,6 +81,13 @@ impl Codegen {
         } else {
             self.emit("        sw      r0,0(r1)");
         }
+    }
+
+    fn is_char_ptr(&self, ptr: &Expr) -> bool {
+        matches!(
+            expr_type(self, ptr),
+            Some(Type::Ptr(inner)) if *inner == Type::Char
+        )
     }
 
     fn gen_call(&mut self, name: &str, args: &[Expr]) {

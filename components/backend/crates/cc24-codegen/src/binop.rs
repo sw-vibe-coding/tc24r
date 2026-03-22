@@ -21,6 +21,7 @@ pub(crate) fn expr_type(cg: &Codegen, expr: &Expr) -> Option<Type> {
             Type::Ptr(pointee) => Some(*pointee),
             _ => None,
         },
+        Expr::StringLit(_) => Some(Type::Ptr(Box::new(Type::Char))),
         _ => None,
     }
 }
