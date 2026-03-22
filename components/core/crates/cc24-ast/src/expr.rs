@@ -58,6 +58,8 @@ pub enum BinOp {
     Gt,
     Le,
     Ge,
+    LogAnd,
+    LogOr,
 }
 
 /// Unary operator.

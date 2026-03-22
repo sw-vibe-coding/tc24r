@@ -1,4 +1,6 @@
-//! Runtime helpers: ISR prologue/epilogue and divmod routines.
+//! Runtime helpers: ISR, divmod, and short-circuit logical operators.
+
+use cc24_ast::Expr;
 
 use crate::Codegen;
 
@@ -32,6 +34,40 @@ pub(crate) fn emit_runtime(cg: &mut Codegen) {
         cg.emit("");
         emit_divmod(cg);
     }
+}
+
+/// Short-circuit &&: if LHS is 0, result is 0 without evaluating RHS.
+pub(crate) fn gen_log_and(cg: &mut Codegen, lhs: &Expr, rhs: &Expr) {
+    let false_label = cg.new_label();
+    let done_label = cg.new_label();
+    cg.gen_expr(lhs);
+    cg.emit("        ceq     r0,z");
+    cg.emit(&format!("        brt     {false_label}"));
+    cg.gen_expr(rhs);
+    cg.emit("        ceq     r0,z");
+    cg.emit(&format!("        brt     {false_label}"));
+    cg.emit("        lc      r0,1");
+    cg.emit(&format!("        bra     {done_label}"));
+    cg.emit(&format!("{false_label}:"));
+    cg.emit("        lc      r0,0");
+    cg.emit(&format!("{done_label}:"));
+}
+
+/// Short-circuit ||: if LHS is nonzero, result is 1 without evaluating RHS.
+pub(crate) fn gen_log_or(cg: &mut Codegen, lhs: &Expr, rhs: &Expr) {
+    let true_label = cg.new_label();
+    let done_label = cg.new_label();
+    cg.gen_expr(lhs);
+    cg.emit("        ceq     r0,z");
+    cg.emit(&format!("        brf     {true_label}"));
+    cg.gen_expr(rhs);
+    cg.emit("        ceq     r0,z");
+    cg.emit(&format!("        brf     {true_label}"));
+    cg.emit("        lc      r0,0");
+    cg.emit(&format!("        bra     {done_label}"));
+    cg.emit(&format!("{true_label}:"));
+    cg.emit("        lc      r0,1");
+    cg.emit(&format!("{done_label}:"));
 }
 
 fn emit_divmod(cg: &mut Codegen) {

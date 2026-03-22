@@ -73,6 +73,14 @@ impl Codegen {
     }
 
     pub(crate) fn gen_binop(&mut self, op: BinOp, lhs: &Expr, rhs: &Expr) {
+        // Short-circuit logical operators (in runtime module)
+        if op == BinOp::LogAnd {
+            return crate::runtime::gen_log_and(self, lhs, rhs);
+        }
+        if op == BinOp::LogOr {
+            return crate::runtime::gen_log_or(self, lhs, rhs);
+        }
+
         let lhs_ty = expr_type(self, lhs);
         let rhs_ty = expr_type(self, rhs);
         let lhs_is_ptr = matches!(&lhs_ty, Some(Type::Ptr(_)));
@@ -150,6 +158,7 @@ impl Codegen {
                 self.needs_mod = true;
                 self.emit_divmod_call("__cc24_mod");
             }
+            BinOp::LogAnd | BinOp::LogOr => unreachable!(),
         }
     }
 

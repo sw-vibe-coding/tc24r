@@ -1,4 +1,4 @@
-//! Bitwise and equality precedence levels.
+//! Logical, bitwise, and equality precedence levels.
 
 use cc24_ast::{BinOp, Expr};
 use cc24_error::CompileError;
@@ -6,6 +6,32 @@ use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
 
 use crate::arithmetic::parse_relational;
+
+pub fn parse_log_or(ts: &mut TokenStream) -> Result<Expr, CompileError> {
+    let mut lhs = parse_log_and(ts)?;
+    while ts.eat(TokenKind::PipePipe) {
+        let rhs = parse_log_and(ts)?;
+        lhs = Expr::BinOp {
+            op: BinOp::LogOr,
+            lhs: Box::new(lhs),
+            rhs: Box::new(rhs),
+        };
+    }
+    Ok(lhs)
+}
+
+fn parse_log_and(ts: &mut TokenStream) -> Result<Expr, CompileError> {
+    let mut lhs = parse_or(ts)?;
+    while ts.eat(TokenKind::AmpAmp) {
+        let rhs = parse_or(ts)?;
+        lhs = Expr::BinOp {
+            op: BinOp::LogAnd,
+            lhs: Box::new(lhs),
+            rhs: Box::new(rhs),
+        };
+    }
+    Ok(lhs)
+}
 
 pub fn parse_or(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     let mut lhs = parse_xor(ts)?;

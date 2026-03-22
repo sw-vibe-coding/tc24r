@@ -5,7 +5,7 @@ use cc24_error::CompileError;
 use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
 
-use crate::bitwise::parse_or;
+use crate::bitwise::parse_log_or;
 use crate::decl::{is_type_keyword, parse_type};
 
 /// Parse an expression.
@@ -14,7 +14,7 @@ pub fn parse_expr(ts: &mut TokenStream) -> Result<Expr, CompileError> {
 }
 
 fn parse_assign(ts: &mut TokenStream) -> Result<Expr, CompileError> {
-    let expr = parse_or(ts)?;
+    let expr = parse_log_or(ts)?;
     if ts.eat(TokenKind::Assign) {
         let value = parse_assign(ts)?;
         return match expr {
