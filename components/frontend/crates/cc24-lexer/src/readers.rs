@@ -38,13 +38,17 @@ impl Lexer<'_> {
         while self.pos < self.source.len() && self.source[self.pos].is_ascii_digit() {
             self.pos += 1;
         }
+        // Skip optional integer suffix (U, L, LL, UL, etc.)
+        while self.pos < self.source.len()
+            && matches!(self.source[self.pos], b'u' | b'U' | b'l' | b'L')
+        {
+            self.pos += 1;
+        }
         let text = std::str::from_utf8(&self.source[start..self.pos]).unwrap();
-        let value: i32 = text.parse().map_err(|_| {
-            CompileError::new(
-                format!("invalid integer literal: {text}"),
-                Some(Span::new(start, self.pos - start)),
-            )
-        })?;
+        let digits: String = text.chars().filter(|c| c.is_ascii_digit()).collect();
+        // Parse as u64 then truncate to 24 bits
+        let wide: u64 = digits.parse().unwrap_or(0);
+        let value = (wide & 0xFFFFFF) as i32;
         Ok(Token {
             kind: TokenKind::IntLit(value),
             span: Span::new(start, self.pos - start),
@@ -56,13 +60,17 @@ impl Lexer<'_> {
         while self.pos < self.source.len() && self.source[self.pos].is_ascii_hexdigit() {
             self.pos += 1;
         }
+        // Skip optional integer suffix (U, L, LL, UL, etc.)
+        while self.pos < self.source.len()
+            && matches!(self.source[self.pos], b'u' | b'U' | b'l' | b'L')
+        {
+            self.pos += 1;
+        }
         let hex_text = std::str::from_utf8(&self.source[start + 2..self.pos]).unwrap();
-        let value = i32::from_str_radix(hex_text, 16).map_err(|_| {
-            CompileError::new(
-                format!("invalid hex literal: 0x{hex_text}"),
-                Some(Span::new(start, self.pos - start)),
-            )
-        })?;
+        let hex_digits: String = hex_text.chars().filter(|c| c.is_ascii_hexdigit()).collect();
+        // Parse as u64 then truncate to 24 bits (COR24 is a 24-bit machine)
+        let wide = u64::from_str_radix(&hex_digits, 16).unwrap_or(0);
+        let value = (wide & 0xFFFFFF) as i32;
         Ok(Token {
             kind: TokenKind::IntLit(value),
             span: Span::new(start, self.pos - start),

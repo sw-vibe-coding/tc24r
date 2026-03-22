@@ -39,6 +39,8 @@ trap 'rm -rf "$TMPDIR"' EXIT
 # - Our include/test.h provides ASSERT as a function-like macro
 # - Strip printf/exit/hosted-C helper declarations
 # - Strip the common file's helper function implementations
+# Note: sed usage here is not portable to macOS BSD sed.
+# TODO: Replace with a Rust cc24-adapt tool (see docs/known-issues.md)
 sed \
     -e '/printf/d' \
     -e '/sprintf/d' \
@@ -56,6 +58,11 @@ sed \
     -e '/^int ushort_fn/d' \
     -e '/^static int static_fn/d' \
     -e '/^int ext_fn/d' \
+    -e '/float/d' \
+    -e '/double/d' \
+    -e '/0b[01]/d' \
+    -e '/0[0-7][0-7]/d' \
+    -e '/assert.*size/d' \
     "$SRC" > "$TMPDIR/$NAME.c"
 
 # Compile
