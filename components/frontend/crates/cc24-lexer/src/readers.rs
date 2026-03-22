@@ -15,6 +15,9 @@ impl Lexer<'_> {
         if ch.is_ascii_digit() {
             return self.read_number(start);
         }
+        if ch == b'\'' {
+            return self.read_char_lit(start);
+        }
         if ch.is_ascii_alphabetic() || ch == b'_' {
             return Ok(self.read_ident(start));
         }
@@ -113,6 +116,50 @@ impl Lexer<'_> {
         };
         value.push(escaped);
         Ok(())
+    }
+}
+
+impl Lexer<'_> {
+    fn read_char_lit(&mut self, start: usize) -> Result<Token, CompileError> {
+        self.pos += 1; // skip opening '
+        if self.pos >= self.source.len() {
+            return Err(CompileError::new(
+                "unterminated char literal",
+                Some(Span::new(start, 1)),
+            ));
+        }
+        let val = if self.source[self.pos] == b'\\' {
+            self.pos += 1;
+            match self.source.get(self.pos) {
+                Some(b'n') => b'\n',
+                Some(b't') => b'\t',
+                Some(b'0') => 0,
+                Some(b'\\') => b'\\',
+                Some(b'\'') => b'\'',
+                Some(b'a') => 7, // bell
+                Some(b'r') => b'\r',
+                _ => {
+                    return Err(CompileError::new(
+                        "unknown char escape",
+                        Some(Span::new(start, self.pos - start)),
+                    ));
+                }
+            }
+        } else {
+            self.source[self.pos]
+        };
+        self.pos += 1; // skip char
+        if self.source.get(self.pos) != Some(&b'\'') {
+            return Err(CompileError::new(
+                "expected closing '",
+                Some(Span::new(start, self.pos - start)),
+            ));
+        }
+        self.pos += 1; // skip closing '
+        Ok(Token {
+            kind: TokenKind::IntLit(val as i32),
+            span: Span::new(start, self.pos - start),
+        })
     }
 }
 
