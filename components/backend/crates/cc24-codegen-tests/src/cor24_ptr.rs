@@ -33,6 +33,12 @@ fn cor24_string_constant() {
 }
 
 #[test]
+fn cor24_div_mod() {
+    // 17 / 5 = 3, 17 % 5 = 2, combined = 3 + 2 = 5
+    assert_assembles_cor24("div_mod", "int main() { return 17 / 5 + 17 % 5; }");
+}
+
+#[test]
 fn cor24_char_ptr_arithmetic() {
     // char *p points to a char, p + 1 should advance by 1 byte
     assert_assembles_cor24(

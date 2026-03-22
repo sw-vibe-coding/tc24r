@@ -82,9 +82,24 @@ impl Codegen {
             BinOp::Shr => self.emit("        srl     r0,r1"),
             BinOp::Eq | BinOp::Ne => self.emit_cmp_eq(op),
             BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => self.emit_cmp_rel(op),
-            BinOp::Div => self.emit("        ; TODO: software divide r0/r1"),
-            BinOp::Mod => self.emit("        ; TODO: software modulo r0%r1"),
+            BinOp::Div => {
+                self.needs_div = true;
+                self.emit_divmod_call("__cc24_div");
+            }
+            BinOp::Mod => {
+                self.needs_mod = true;
+                self.emit_divmod_call("__cc24_mod");
+            }
         }
+    }
+
+    fn emit_divmod_call(&mut self, label: &str) {
+        // r0=lhs(dividend), r1=rhs(divisor) already set
+        self.emit("        push    r1"); // arg2: divisor
+        self.emit("        push    r0"); // arg1: dividend
+        self.emit(&format!("        la      r0,{label}"));
+        self.emit("        jal     r1,(r0)");
+        self.emit("        add     sp,6"); // clean 2 args
     }
 
     fn emit_cmp_eq(&mut self, op: BinOp) {
