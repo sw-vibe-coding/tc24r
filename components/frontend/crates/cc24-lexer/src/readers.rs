@@ -193,6 +193,7 @@ pub(crate) fn keyword_or_ident(text: &str) -> TokenKind {
         "static" => TokenKind::Static,
         "enum" => TokenKind::Enum,
         "extern" => TokenKind::Extern,
+        "typedef" => TokenKind::Typedef,
         _ => TokenKind::Ident(text.to_string()),
     }
 }

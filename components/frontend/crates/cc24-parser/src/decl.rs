@@ -8,8 +8,8 @@ use cc24_token::TokenKind;
 use crate::stmt::parse_block;
 use cc24_parse_stream::try_parse_interrupt_attr;
 
-use cc24_parser_types::{is_base_type, is_storage_class};
-pub use cc24_parser_types::{is_type_keyword, parse_type};
+pub use cc24_parser_types::parse_type;
+use cc24_parser_types::{is_base_type, is_storage_class, is_typedef_name};
 
 /// Check if current position is an enum definition (`enum {` or `enum tag {`).
 fn is_enum_definition(ts: &TokenStream) -> bool {
@@ -34,6 +34,11 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
             cc24_parser_enum::parse_enum_decl(ts)?;
             continue;
         }
+        // Top-level typedef
+        if ts.eat(TokenKind::Typedef) {
+            cc24_parser_typedef::parse_typedef_decl(ts)?;
+            continue;
+        }
         let is_interrupt = try_parse_interrupt_attr(ts);
         if is_global_decl(ts) {
             globals.push(parse_global_decl(ts)?);
@@ -50,7 +55,7 @@ fn is_global_decl(ts: &TokenStream) -> bool {
     while is_storage_class(ts.lookahead(i)) {
         i += 1;
     }
-    if !is_base_type(ts.lookahead(i)) {
+    if !is_base_type(ts.lookahead(i)) && !is_typedef_name(ts, ts.lookahead(i)) {
         return false;
     }
     i += 1;

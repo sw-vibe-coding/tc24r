@@ -113,9 +113,9 @@ cargo run -- run path/to/program.s
 
 | Test Suite | Pass | Total | Notes |
 |-----------|------|-------|-------|
-| cc24 demos | 22 | 22 | End-to-end compiler + emulator |
+| cc24 demos | 24 | 24 | End-to-end compiler + emulator |
 | chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
-| chibicc full | 3 | 41 | generic, pragma-once, stdhdr |
+| chibicc full | 4 | 41 | enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 0 | 11 | All need stdio.h |
 | bgc examples | 0 | 117 | All need stdio.h |
 

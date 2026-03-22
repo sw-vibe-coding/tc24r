@@ -20,6 +20,7 @@ pub enum TokenKind {
     Static,
     Extern,
     Enum,
+    Typedef,
 
     // Literals
     IntLit(i32),

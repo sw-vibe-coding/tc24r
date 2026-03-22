@@ -6,8 +6,9 @@ use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
 
 use crate::control;
-use crate::decl::{is_type_keyword, parse_type};
+use crate::decl::parse_type;
 use crate::expr::parse_expr;
+use cc24_parser_types::is_type_start;
 
 /// Parse a brace-delimited block.
 pub fn parse_block(ts: &mut TokenStream) -> Result<Block, CompileError> {
@@ -63,7 +64,10 @@ pub fn parse_stmt(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
         ts.advance(); // consume `enum`
         return cc24_parser_enum::parse_enum_decl(ts);
     }
-    if is_type_keyword(&ts.peek().kind) {
+    if ts.eat(TokenKind::Typedef) {
+        return cc24_parser_typedef::parse_typedef_decl(ts);
+    }
+    if is_type_start(ts) {
         return parse_local_decl(ts);
     }
     let expr = parse_expr(ts)?;

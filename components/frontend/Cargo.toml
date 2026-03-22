@@ -7,6 +7,7 @@ members = [
     "crates/cc24-parser-compound",
     "crates/cc24-parser-enum",
     "crates/cc24-parser-tests",
+    "crates/cc24-parser-typedef",
     "crates/cc24-parser-types",
     "crates/cc24-preprocess",
     "crates/cc24-preprocess-tests",

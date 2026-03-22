@@ -4,7 +4,7 @@ use cc24_ast::{Expr, UnaryOp};
 use cc24_error::CompileError;
 use cc24_parse_stream::TokenStream;
 use cc24_parser_compound::{desugar_compound, eat_compound_assign, make_assign};
-use cc24_parser_types::{is_type_keyword, parse_type};
+use cc24_parser_types::{is_type_start, parse_type};
 use cc24_token::TokenKind;
 
 use crate::bitwise::parse_log_or;
@@ -100,7 +100,7 @@ fn parse_primary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
             return Ok(Expr::StmtExpr(block));
         }
         // Cast: (type)expr  vs  parenthesized: (expr)
-        if is_type_keyword(&ts.peek().kind) {
+        if is_type_start(ts) {
             let ty = parse_type(ts)?;
             ts.expect(TokenKind::RParen)?;
             let operand = parse_unary(ts)?;
@@ -179,7 +179,7 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
 /// Parse `sizeof(type)` or `sizeof(expr)` after the `sizeof` token.
 fn parse_sizeof(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     ts.expect(TokenKind::LParen)?;
-    if is_type_keyword(&ts.peek().kind) {
+    if is_type_start(ts) {
         let ty = parse_type(ts)?;
         ts.expect(TokenKind::RParen)?;
         return Ok(Expr::IntLit(ty.size()));

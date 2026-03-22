@@ -5,9 +5,9 @@ use cc24_error::CompileError;
 use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
 
-use crate::decl::is_type_keyword;
 use crate::expr::parse_expr;
 use crate::stmt::{parse_block, parse_body, parse_local_decl};
+use cc24_parser_types::is_type_start;
 
 pub fn parse_if(ts: &mut TokenStream) -> Result<Stmt, CompileError> {
     ts.expect(TokenKind::LParen)?;
@@ -63,7 +63,7 @@ fn parse_for_init(ts: &mut TokenStream) -> Result<Option<Box<Stmt>>, CompileErro
         ts.expect(TokenKind::Semicolon)?;
         return Ok(None);
     }
-    if is_type_keyword(&ts.peek().kind) {
+    if is_type_start(ts) {
         // local decl consumes its own semicolon
         return Ok(Some(Box::new(parse_local_decl(ts)?)));
     }

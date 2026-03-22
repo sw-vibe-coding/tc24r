@@ -10,6 +10,17 @@ pub fn is_type_keyword(kind: &TokenKind) -> bool {
     is_base_type(kind) || is_storage_class(kind)
 }
 
+/// Check whether the current token starts a type (base type, storage
+/// class, or typedef alias).
+pub fn is_type_start(ts: &TokenStream) -> bool {
+    is_type_keyword(&ts.peek().kind) || is_typedef_name(ts, &ts.peek().kind)
+}
+
+/// Check whether a token is a known typedef alias.
+pub fn is_typedef_name(ts: &TokenStream, kind: &TokenKind) -> bool {
+    matches!(kind, TokenKind::Ident(name) if ts.type_aliases.contains_key(name))
+}
+
 pub fn is_base_type(kind: &TokenKind) -> bool {
     matches!(
         kind,
@@ -46,6 +57,11 @@ pub fn parse_type(ts: &mut TokenStream) -> Result<Type, CompileError> {
                 ts.advance();
             }
             Type::Int // enums are treated as int
+        }
+        TokenKind::Ident(ref name) if ts.type_aliases.contains_key(name) => {
+            let resolved = ts.type_aliases[name].clone();
+            ts.advance();
+            resolved
         }
         _ => {
             return Err(CompileError::new(

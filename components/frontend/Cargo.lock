@@ -49,6 +49,7 @@ dependencies = [
 name = "cc24-parse-stream"
 version = "0.1.0"
 dependencies = [
+ "cc24-ast",
  "cc24-error",
  "cc24-span",
  "cc24-token",
@@ -63,6 +64,7 @@ dependencies = [
  "cc24-parse-stream",
  "cc24-parser-compound",
  "cc24-parser-enum",
+ "cc24-parser-typedef",
  "cc24-parser-types",
  "cc24-span",
  "cc24-token",
@@ -95,6 +97,17 @@ dependencies = [
  "cc24-ast",
  "cc24-lexer",
  "cc24-parser",
+]
+
+[[package]]
+name = "cc24-parser-typedef"
+version = "0.1.0"
+dependencies = [
+ "cc24-ast",
+ "cc24-error",
+ "cc24-parse-stream",
+ "cc24-parser-types",
+ "cc24-token",
 ]
 
 [[package]]
