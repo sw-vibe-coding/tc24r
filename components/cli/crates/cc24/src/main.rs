@@ -26,7 +26,8 @@ fn read_source(path: &str) -> String {
 }
 
 fn compile(source: &str) -> String {
-    let tokens = match cc24_lexer::Lexer::new(source).tokenize() {
+    let preprocessed = cc24_preprocess::preprocess(source);
+    let tokens = match cc24_lexer::Lexer::new(&preprocessed).tokenize() {
         Ok(t) => t,
         Err(e) => {
             eprintln!("cc24: {e}");

@@ -5,5 +5,7 @@ members = [
     "crates/cc24-parse-stream",
     "crates/cc24-parser",
     "crates/cc24-parser-tests",
+    "crates/cc24-preprocess",
+    "crates/cc24-preprocess-tests",
 ]
 resolver = "3"

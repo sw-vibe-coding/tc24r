@@ -9,6 +9,7 @@ dependencies = [
  "cc24-codegen",
  "cc24-lexer",
  "cc24-parser",
+ "cc24-preprocess",
 ]
 
 [[package]]
@@ -60,6 +61,10 @@ dependencies = [
  "cc24-span",
  "cc24-token",
 ]
+
+[[package]]
+name = "cc24-preprocess"
+version = "0.1.0"
 
 [[package]]
 name = "cc24-span"

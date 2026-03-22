@@ -63,6 +63,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "cc24-preprocess"
+version = "0.1.0"
+
+[[package]]
+name = "cc24-preprocess-tests"
+version = "0.1.0"
+dependencies = [
+ "cc24-preprocess",
+]
+
+[[package]]
 name = "cc24-span"
 version = "0.1.0"
 

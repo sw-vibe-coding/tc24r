@@ -11,3 +11,4 @@ path = "src/main.rs"
 cc24-codegen = { path = "../../../backend/crates/cc24-codegen" }
 cc24-lexer = { path = "../../../frontend/crates/cc24-lexer" }
 cc24-parser = { path = "../../../frontend/crates/cc24-parser" }
+cc24-preprocess = { path = "../../../frontend/crates/cc24-preprocess" }
