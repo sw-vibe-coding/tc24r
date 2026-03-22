@@ -1,6 +1,6 @@
 //! Top-level and declaration parsing.
 
-use cc24_ast::{Function, GlobalDecl, Param, Program};
+use cc24_ast::{Function, GlobalDecl, Param, Program, Type};
 use cc24_error::CompileError;
 use cc24_parse_stream::TokenStream;
 use cc24_token::TokenKind;
@@ -41,7 +41,7 @@ pub fn parse_program(ts: &mut TokenStream) -> Result<Program, CompileError> {
         }
         let is_interrupt = try_parse_interrupt_attr(ts);
         if is_global_decl(ts) {
-            globals.push(parse_global_decl(ts)?);
+            parse_global_decls(ts, &mut globals)?;
         } else {
             functions.push(parse_function(ts, is_interrupt)?);
         }
@@ -67,15 +67,41 @@ fn is_global_decl(ts: &TokenStream) -> bool {
         && !matches!(ts.lookahead(i + 1), TokenKind::LParen)
 }
 
-fn parse_global_decl(ts: &mut TokenStream) -> Result<GlobalDecl, CompileError> {
-    let ty = parse_type(ts)?;
+fn parse_global_decls(
+    ts: &mut TokenStream,
+    globals: &mut Vec<GlobalDecl>,
+) -> Result<(), CompileError> {
+    let base_ty = parse_type(ts)?;
+    globals.push(parse_one_global(ts, base_ty.clone())?);
+    while ts.eat(TokenKind::Comma) {
+        globals.push(parse_one_global(ts, base_ty.clone())?);
+    }
+    ts.expect(TokenKind::Semicolon)?;
+    Ok(())
+}
+
+fn parse_one_global(ts: &mut TokenStream, base_ty: Type) -> Result<GlobalDecl, CompileError> {
+    let mut ty = base_ty;
+    while ts.eat(TokenKind::Star) {
+        ty = Type::Ptr(Box::new(ty));
+    }
     let name = ts.expect_ident()?;
+    if ts.eat(TokenKind::LBracket) {
+        let TokenKind::IntLit(size) = ts.peek().kind else {
+            return Err(CompileError::new(
+                "expected array size",
+                Some(ts.current_span()),
+            ));
+        };
+        ts.advance();
+        ts.expect(TokenKind::RBracket)?;
+        ty = Type::Array(Box::new(ty), size as usize);
+    }
     let init = if ts.eat(TokenKind::Assign) {
         Some(crate::expr::parse_expr(ts)?)
     } else {
         None
     };
-    ts.expect(TokenKind::Semicolon)?;
     Ok(GlobalDecl { name, ty, init })
 }
 
