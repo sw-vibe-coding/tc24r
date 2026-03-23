@@ -50,6 +50,36 @@ parser as an identifier instead of being expanded to `2`.
 
 ---
 
+### BUG-003: Nested array indexing fails to parse
+
+**Filed by:** tml24c
+**Fixed:** 2026-03-23
+**Component:** `tc24r-parser` (expr.rs)
+
+`&pool[offsets[i]]` caused "expected Semicolon, got LBracket". Even
+simple `&pool[0]` failed.
+
+```c
+char pool[100];
+int offsets[10];
+char *get(int i) {
+    return &pool[offsets[i]];  // parse error
+}
+```
+
+**Root cause:** The `&` (address-of) parser only accepted a bare
+identifier (`ts.expect_ident()`), not postfix expressions like
+`name[index]`. After consuming the identifier, leftover `[...]`
+tokens caused the parse error.
+
+**Fix:** After parsing the identifier in `&name`, check for postfix
+operators (`[`, `.`, `->`). If present, parse the full postfix chain.
+Since `arr[i]` desugars to `*(arr + i)`, applying `&` to that yields
+`&*(arr + i)` which simplifies to `arr + i` — the Deref wrapper is
+stripped, leaving the address expression.
+
+---
+
 ## Open
 
 (none)

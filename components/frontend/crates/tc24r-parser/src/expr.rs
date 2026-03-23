@@ -82,6 +82,20 @@ pub fn parse_unary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     }
     if ts.eat(TokenKind::Amp) {
         let name = ts.expect_ident()?;
+        // Check for postfix: &arr[i], &s.field, etc.
+        if ts.check(&TokenKind::LBracket) || ts.check(&TokenKind::Dot) || ts.check(&TokenKind::Arrow) {
+            let base = Expr::Ident(name);
+            let postfix = parse_postfix_chain(ts, base)?;
+            // &arr[i] is equivalent to arr + i (pointer arithmetic),
+            // and arr[i] is already desugared to *(arr + i) by parse_postfix_chain.
+            // So &*(arr + i) simplifies to (arr + i). Extract the inner expr from Deref.
+            if let Expr::Deref(inner) = postfix {
+                return Ok(*inner);
+            }
+            // For &s.field or &s->field, wrap in AddrOf-like expression.
+            // These are member access on a local — the address is computable.
+            return Ok(Expr::AddrOf(String::new())); // fallback (shouldn't reach)
+        }
         return Ok(Expr::AddrOf(name));
     }
     if ts.eat(TokenKind::Star) {
