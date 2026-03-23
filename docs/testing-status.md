@@ -10,7 +10,7 @@ Last updated: 2026-03-22
 | reg-rs regressions | 25 | 25 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
-| beej-c-guide | 0 | 11 | 0% | All need stdio.h |
+| beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 1 | 117 | 1% | 116 blocked on stdio.h |
 
 ## tc24r Demos (39/39)
@@ -176,27 +176,46 @@ Run: `scripts/run-chibicc-tests.sh`
 - inline keyword (accepted, ignored)
 - Escape sequences: \v, \f, \e
 - Unknown # directives silently skipped (#line, # nnn "file")
+- Long branches (no 127-byte range limit)
+- Varargs syntax (...) accepted in parameter lists
+- Freestanding printf via include/stdio.h (codegen dispatches to __tc24r_printfN)
+- Struct brace initializers (struct s x = {1, 2})
+- Forward-declared struct tags and self-referential structs
+- Anonymous struct/union members (C11)
+- Comma-separated struct/union members
+- Array members in structs (char buf[N])
+- Multi-dimensional array declarations (int a[N][M])
+- Chained postfix expressions (a[i].member)
+- Tentative definitions (int x; int x = 5;)
+- Multi-declarator typedef (typedef int A, B[4];)
+- sizeof(type[N]) array type arguments
+- Line continuation (backslash-newline)
+- Unknown escape sequences accepted literally
 
-## beej-c-guide Examples (0/11)
+## beej-c-guide Examples (4/11)
 
 Testing against `~/github/softwarewrighter/beej-c-guide/src/*.c`.
 
-All 11 examples use `#include <stdio.h>` and `printf`. None compile
-without a stdio.h stub.
+### Compiling (4)
+
+| Example | Notes |
+|---------|-------|
+| hello_world.c | printf via freestanding stdio.h |
+| functions.c | printf with %d |
+| pointers.c | printf with %d |
+| typedef.c | printf with %d |
+
+### Blocked (7)
 
 | Example | Blocker |
 |---------|---------|
-| hello_world.c | printf (1 call) |
-| functions.c | printf (2 calls) |
-| pointers.c | printf (4 calls) |
-| structs.c | printf (3 calls) |
-| typedef.c | printf (1 call) |
-| arrays.c | printf (18 calls) |
-| strings.c | printf, string.h |
-| pointers_arithmetic.c | printf, string.h |
-| variables_and_statements.c | printf, scanf, stdbool.h |
-| memory_management.c | printf, malloc/free |
-| file_io.c | printf, fopen/fclose/fgets/etc |
+| arrays.c | Codegen panic (complex array init) |
+| file_io.c | Complex lvalue assignment |
+| memory_management.c | `<stdlib.h>` (malloc/free) |
+| pointers_arithmetic.c | `<string.h>` (strlen) |
+| strings.c | `<string.h>` (strlen, strcmp) |
+| structs.c | `float` type in struct |
+| variables_and_statements.c | `<stdbool.h>` |
 
 Run: `scripts/run-beej-tests.sh`
 
