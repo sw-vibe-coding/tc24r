@@ -20,6 +20,16 @@ int putchar(int ch) {
     return ch;
 }
 
+int getchar(void) {
+    // Wait for UART RX ready (bit 0 of status register)
+    while (!(*(char *)_STDIO_UART_STATUS & 0x01)) {}
+    return *(char *)_STDIO_UART_DATA;
+}
+
+int getc(void) {
+    return getchar();
+}
+
 int puts(char *s) {
     while (*s) {
         _putc_uart(*s);

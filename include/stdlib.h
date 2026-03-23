@@ -55,3 +55,17 @@ int abs(int n) {
     if (n < 0) return 0 - n;
     return n;
 }
+
+int atoi(char *s) {
+    int n = 0;
+    int neg = 0;
+    while (*s == 32) { s = s + 1; }
+    if (*s == 45) { neg = 1; s = s + 1; }
+    else if (*s == 43) { s = s + 1; }
+    while (*s >= 48 && *s <= 57) {
+        n = n * 10 + (*s - 48);
+        s = s + 1;
+    }
+    if (neg) return 0 - n;
+    return n;
+}
