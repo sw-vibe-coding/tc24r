@@ -1,4 +1,4 @@
-// cc24 demo16 -- character literals
+// tc24r demo16 -- character literals
 //
 // New feature:
 //   - 'a', '\n', '\0', '\\', '\'' character literals

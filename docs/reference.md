@@ -95,8 +95,8 @@ a >> n           // right shift (arithmetic)
 a + b            // addition
 a - b            // subtraction
 a * b            // multiplication (hardware, 24-cycle)
-a / b            // division (software __cc24_div)
-a % b            // modulo (software __cc24_mod)
+a / b            // division (software __tc24r_div)
+a % b            // modulo (software __tc24r_mod)
 ```
 
 ### Unary
@@ -223,9 +223,25 @@ for (i = 0; i < n; i = i + 1) {
 
 Supports `i++`, `i--`, `++i`, `--i` for increment/decrement.
 
+### switch / case / default
+
+```c
+switch (x) {
+    case 0:
+        return 10;
+    case 1:
+        return 20;
+    default:
+        return 99;
+}
+```
+
+Cases fall through by default (no implicit break). Use `break` to exit
+the switch. `break` inside a switch exits the switch, not an enclosing loop.
+
 ### break and continue
 
-`break` exits the innermost loop. `continue` jumps to the loop's
+`break` exits the innermost loop or switch. `continue` jumps to the loop's
 next iteration (increment for `for`, condition for `while`/`do...while`).
 
 ```c
@@ -348,8 +364,8 @@ _start:
 Division and modulo use runtime helper functions emitted automatically
 when `/` or `%` are used:
 
-- `__cc24_div` -- signed 24-bit division
-- `__cc24_mod` -- signed 24-bit modulo
+- `__tc24r_div` -- signed 24-bit division
+- `__tc24r_mod` -- signed 24-bit modulo
 
 ## Memory-Mapped I/O (COR24-TB)
 
@@ -402,10 +418,6 @@ tc24r <input.c> [-o output.s] [-I dir]
 
 ## Known Limitations
 
-- No `switch`/`case`
-- No `+=`, `-=`, or other compound assignment
-- No `typedef`, `enum`, `struct`, `union`
-- No function prototypes (forward declarations)
 - `static` local variables are treated as regular locals (not persisted
   across calls). File-scope `static` and `static` functions work correctly
   for single-translation-unit compilation.
@@ -413,6 +425,6 @@ tc24r <input.c> [-o output.s] [-I dir]
 - `sizeof(expr)` returns 3 (int size) for all expressions; only
   `sizeof(type)` returns accurate sizes.
 - No multi-file compilation (single translation unit)
-- No `float` or `double`
+- No `float` or `double` (COR24 has no FPU -- out of scope)
 - Branch range limited to signed 8-bit offset (~127 bytes)
 - No optimization passes

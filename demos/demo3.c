@@ -1,4 +1,4 @@
-// cc24 demo3 -- hex literals, pointer arithmetic, string constants
+// tc24r demo3 -- hex literals, pointer arithmetic, string constants
 //
 // New features since demo2:
 //   - Hex integer literals (0xFF, 0xFF0100)

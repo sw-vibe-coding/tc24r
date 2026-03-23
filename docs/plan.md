@@ -125,9 +125,9 @@ would require:
 
 This is a large effort and low priority compared to language features.
 
-## Rename: cc24 -> tc24r (In Progress)
+## Rename: cc24 -> tc24r (Complete)
 
-The project is being renamed from `cc24` to `tc24r` (Tiny C-compiler for COR24
+The project was renamed from `cc24` to `tc24r` (Tiny C-compiler for COR24
 in Rust). This is part of a series of small toolchain projects:
 
 - **tc24r** -- Tiny C-compiler for COR24 in Rust
@@ -139,10 +139,11 @@ in Rust). This is part of a series of small toolchain projects:
 - [x] Documentation references, README title and descriptions
 - [x] Shell scripts (binary path variables, echo messages)
 - [x] Header file comments
-- [ ] All Cargo crate names (`cc24-*` -> `tc24r-*`)
-- [ ] Binary name in Cargo.toml (`cc24` -> `tc24r`)
-- [ ] Internal module paths and imports
-- [ ] reg-rs test names (cc24-demo* -- would break reg-rs baselines)
+- [x] All Cargo crate names (`cc24-*` -> `tc24r-*`)
+- [x] Binary name in Cargo.toml (`cc24` -> `tc24r`)
+- [x] Internal module paths and imports
+- [x] Doc references, demo comments, and runtime helper names
+- [ ] reg-rs test names (tc24r-demo* -- would break reg-rs baselines)
 
 ## Diagnostics
 

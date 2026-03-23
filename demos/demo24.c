@@ -1,4 +1,4 @@
-// cc24 demo24 -- typedef
+// tc24r demo24 -- typedef
 //
 // New features:
 //   - typedef int MyInt; -- type alias

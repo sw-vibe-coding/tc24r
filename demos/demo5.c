@@ -1,4 +1,4 @@
-// cc24 demo5 -- arrays
+// tc24r demo5 -- arrays
 //
 // New features:
 //   - Array declarations: int a[N]

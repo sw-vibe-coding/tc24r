@@ -1,4 +1,4 @@
-// cc24 demo13 -- break and continue
+// tc24r demo13 -- break and continue
 //
 // New features:
 //   - break: exits innermost loop

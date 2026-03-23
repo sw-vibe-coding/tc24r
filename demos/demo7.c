@@ -1,4 +1,4 @@
-// cc24 demo7 -- pointer subtraction
+// tc24r demo7 -- pointer subtraction
 //
 // New features:
 //   - ptr - int: retreats pointer by n elements (scaled)

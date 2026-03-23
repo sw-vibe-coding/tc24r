@@ -1,4 +1,4 @@
-// cc24 demo21 -- compound assignment operators
+// tc24r demo21 -- compound assignment operators
 //
 // New features:
 //   +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=

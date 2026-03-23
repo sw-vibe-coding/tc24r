@@ -81,7 +81,7 @@ where the low byte is at the lowest address.
   the value out before calling the function again, as the next call
   overwrites the return area. (This follows the Portable C Compiler model.)
 
-For the initial cc24 compiler (demo subset), only `char` and `int` return
+For the initial tc24r compiler (demo subset), only `char` and `int` return
 values need to be supported -- both directly in r0.
 
 ## Function Prologue

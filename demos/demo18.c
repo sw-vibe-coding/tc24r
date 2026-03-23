@@ -1,4 +1,4 @@
-// cc24 demo18 -- sizeof operator
+// tc24r demo18 -- sizeof operator
 //
 // New feature:
 //   - sizeof(type): compile-time constant

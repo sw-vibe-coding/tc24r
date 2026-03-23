@@ -29,9 +29,9 @@ Defines what the compiler does. No behavior, no I/O.
 ```
 config/
   crates/
-    cc24-config/          -- CompilerConfig struct: source path, output path,
+    tc24r-config/          -- CompilerConfig struct: source path, output path,
                              include dirs, target, optimization level, flags
-    cc24-target/          -- TargetConfig: COR24-TB register addresses,
+    tc24r-target/          -- TargetConfig: COR24-TB register addresses,
                              word size, stack init, ISR conventions
 ```
 
@@ -46,8 +46,8 @@ Registers handlers. Instantiates stages. Produces a ready-to-run pipeline.
 ```
 builder/
   crates/
-    cc24-cli-args/        -- parse CLI args into raw options
-    cc24-pipeline-builder/-- build Pipeline from CompilerConfig:
+    tc24r-cli-args/        -- parse CLI args into raw options
+    tc24r-pipeline-builder/-- build Pipeline from CompilerConfig:
                              register stmt/expr/op handlers,
                              configure preprocessor include paths,
                              set target, wire stages together
@@ -65,7 +65,7 @@ COR24. Pure delegation pattern.
 ```
 dispatch/
   crates/
-    cc24-dispatch/        -- Handler<Input,State> trait, Chain<H> struct,
+    tc24r-dispatch/        -- Handler<Input,State> trait, Chain<H> struct,
                              ChainBuilder, registration API
 ```
 
@@ -91,16 +91,16 @@ Data types and trait definitions. No implementations, no logic.
 ```
 core/
   crates/
-    cc24-span/            -- Span (unchanged)
-    cc24-error/           -- CompileError (unchanged)
-    cc24-token/           -- Token, TokenKind (unchanged)
-    cc24-ast/             -- AST nodes: Program, Function, Stmt, Expr
-    cc24-types/           -- Type enum (Char, Int, Ptr, Array, Void)
-    cc24-traits/          -- Emitter trait, TypeQuery trait,
+    tc24r-span/            -- Span (unchanged)
+    tc24r-error/           -- CompileError (unchanged)
+    tc24r-token/           -- Token, TokenKind (unchanged)
+    tc24r-ast/             -- AST nodes: Program, Function, Stmt, Expr
+    tc24r-types/           -- Type enum (Char, Int, Ptr, Array, Void)
+    tc24r-traits/          -- Emitter trait, TypeQuery trait,
                              StmtHandler, ExprHandler, OpHandler
 ```
 
-cc24-traits defines the interfaces. Implementations live elsewhere.
+tc24r-traits defines the interfaces. Implementations live elsewhere.
 
 ### codegen-state/ -- Codegen State (struct only)
 
@@ -109,7 +109,7 @@ The mutable state threaded through code generation. No methods.
 ```
 codegen-state/
   crates/
-    cc24-codegen-state/   -- CodegenState struct (pub fields):
+    tc24r-codegen-state/   -- CodegenState struct (pub fields):
                              output buffer, label counter, locals map,
                              local_types map, globals, break/continue
                              stacks, string literals, runtime flags
@@ -125,9 +125,9 @@ syntax but not about C language constructs.
 ```
 codegen-emit/
   crates/
-    cc24-emit-core/       -- emit(), new_label(), load_immediate()
-    cc24-emit-data/       -- emit_data_section(), emit_start()
-    cc24-emit-load-store/ -- gen_load_by_name(), gen_store_by_name(),
+    tc24r-emit-core/       -- emit(), new_label(), load_immediate()
+    tc24r-emit-data/       -- emit_data_section(), emit_start()
+    tc24r-emit-load-store/ -- gen_load_by_name(), gen_store_by_name(),
                              load/store for globals vs locals, char vs int
 ```
 
@@ -138,47 +138,47 @@ Pure functions that inspect AST nodes and state without modifying anything.
 ```
 codegen-query/
   crates/
-    cc24-type-infer/      -- expr_type(): infer type of expression from state
-    cc24-type-query/      -- is_char_ptr(), pointee_type(), element_size()
+    tc24r-type-infer/      -- expr_type(): infer type of expression from state
+    tc24r-type-query/      -- is_char_ptr(), pointee_type(), element_size()
 ```
 
 ### codegen-handlers/ -- Feature Handlers (one per feature)
 
-Each handler implements a trait from cc24-traits. Each handler is a
+Each handler implements a trait from tc24r-traits. Each handler is a
 small crate with 1-3 functions. Adding a new C feature = adding a new
 handler crate and registering it in the builder.
 
 ```
 codegen-handlers/
   crates/
-    cc24-handle-return/       -- Stmt::Return handler
-    cc24-handle-if/           -- Stmt::If handler
-    cc24-handle-while/        -- Stmt::While handler
-    cc24-handle-dowhile/      -- Stmt::DoWhile handler
-    cc24-handle-for/          -- Stmt::For handler
-    cc24-handle-break/        -- Stmt::Break handler
-    cc24-handle-continue/     -- Stmt::Continue handler
-    cc24-handle-local-decl/   -- Stmt::LocalDecl handler
-    cc24-handle-asm/          -- Stmt::Asm handler
-    cc24-handle-expr-stmt/    -- Stmt::Expr handler
+    tc24r-handle-return/       -- Stmt::Return handler
+    tc24r-handle-if/           -- Stmt::If handler
+    tc24r-handle-while/        -- Stmt::While handler
+    tc24r-handle-dowhile/      -- Stmt::DoWhile handler
+    tc24r-handle-for/          -- Stmt::For handler
+    tc24r-handle-break/        -- Stmt::Break handler
+    tc24r-handle-continue/     -- Stmt::Continue handler
+    tc24r-handle-local-decl/   -- Stmt::LocalDecl handler
+    tc24r-handle-asm/          -- Stmt::Asm handler
+    tc24r-handle-expr-stmt/    -- Stmt::Expr handler
 
-    cc24-handle-intlit/       -- Expr::IntLit handler
-    cc24-handle-stringlit/    -- Expr::StringLit handler
-    cc24-handle-ident/        -- Expr::Ident (variable load + array decay)
-    cc24-handle-assign/       -- Expr::Assign handler
-    cc24-handle-call/         -- Expr::Call handler
-    cc24-handle-addr-of/      -- Expr::AddrOf handler
-    cc24-handle-deref/        -- Expr::Deref + DerefAssign handler
-    cc24-handle-cast/         -- Expr::Cast handler
-    cc24-handle-incdec/       -- PreInc, PreDec, PostInc, PostDec handler
-    cc24-handle-unary/        -- UnaryOp (neg, bitnot, lognot)
+    tc24r-handle-intlit/       -- Expr::IntLit handler
+    tc24r-handle-stringlit/    -- Expr::StringLit handler
+    tc24r-handle-ident/        -- Expr::Ident (variable load + array decay)
+    tc24r-handle-assign/       -- Expr::Assign handler
+    tc24r-handle-call/         -- Expr::Call handler
+    tc24r-handle-addr-of/      -- Expr::AddrOf handler
+    tc24r-handle-deref/        -- Expr::Deref + DerefAssign handler
+    tc24r-handle-cast/         -- Expr::Cast handler
+    tc24r-handle-incdec/       -- PreInc, PreDec, PostInc, PostDec handler
+    tc24r-handle-unary/        -- UnaryOp (neg, bitnot, lognot)
 
-    cc24-handle-add-sub/      -- BinOp::Add, Sub (with pointer arithmetic)
-    cc24-handle-mul/          -- BinOp::Mul
-    cc24-handle-div-mod/      -- BinOp::Div, Mod (software divide)
-    cc24-handle-bitwise/      -- BinOp::BitAnd, BitOr, BitXor, Shl, Shr
-    cc24-handle-compare/      -- BinOp::Eq, Ne, Lt, Gt, Le, Ge
-    cc24-handle-logical/      -- BinOp::LogAnd, LogOr (short-circuit)
+    tc24r-handle-add-sub/      -- BinOp::Add, Sub (with pointer arithmetic)
+    tc24r-handle-mul/          -- BinOp::Mul
+    tc24r-handle-div-mod/      -- BinOp::Div, Mod (software divide)
+    tc24r-handle-bitwise/      -- BinOp::BitAnd, BitOr, BitXor, Shl, Shr
+    tc24r-handle-compare/      -- BinOp::Eq, Ne, Lt, Gt, Le, Ge
+    tc24r-handle-logical/      -- BinOp::LogAnd, LogOr (short-circuit)
 ```
 
 ### codegen-runtime/ -- Runtime Library Templates
@@ -188,9 +188,9 @@ Assembly templates emitted when certain features are used.
 ```
 codegen-runtime/
   crates/
-    cc24-runtime-divmod/  -- __cc24_div, __cc24_mod assembly
-    cc24-runtime-isr/     -- ISR prologue/epilogue templates
-    cc24-runtime-start/   -- _start entry point template
+    tc24r-runtime-divmod/  -- __tc24r_div, __tc24r_mod assembly
+    tc24r-runtime-isr/     -- ISR prologue/epilogue templates
+    tc24r-runtime-start/   -- _start entry point template
 ```
 
 ### codegen/ -- Orchestrator (wiring only)
@@ -201,10 +201,10 @@ then runs dispatch chains over the AST.
 ```
 codegen/
   crates/
-    cc24-codegen/         -- generate(): build state, walk AST,
+    tc24r-codegen/         -- generate(): build state, walk AST,
                              dispatch each node, emit runtime, emit data
-    cc24-func-codegen/    -- gen_function(): prologue, walk body, epilogue
-    cc24-locals-collect/  -- pre-pass to collect local variable declarations
+    tc24r-func-codegen/    -- gen_function(): prologue, walk body, epilogue
+    tc24r-locals-collect/  -- pre-pass to collect local variable declarations
 ```
 
 ### preprocess/ -- Preprocessor
@@ -212,8 +212,8 @@ codegen/
 ```
 preprocess/
   crates/
-    cc24-preprocess/
-    cc24-preprocess-tests/
+    tc24r-preprocess/
+    tc24r-preprocess-tests/
 ```
 
 ### lexer/ -- Tokenization
@@ -221,8 +221,8 @@ preprocess/
 ```
 lexer/
   crates/
-    cc24-lexer/
-    cc24-lexer-tests/
+    tc24r-lexer/
+    tc24r-lexer-tests/
 ```
 
 ### parser/ -- Parsing
@@ -230,9 +230,9 @@ lexer/
 ```
 parser/
   crates/
-    cc24-parse-stream/
-    cc24-parser/
-    cc24-parser-tests/
+    tc24r-parse-stream/
+    tc24r-parser/
+    tc24r-parser-tests/
 ```
 
 ### testing/ -- Test Infrastructure
@@ -243,11 +243,11 @@ on this instead of duplicating compile/assert helpers.
 ```
 testing/
   crates/
-    cc24-test-compile/    -- compile(): source -> assembly string
-    cc24-test-golden/     -- golden_test(): compare against .expected.s
-    cc24-test-cor24/      -- cor24-run path lookup, assemble_with_cor24_run()
-    cc24-test-as24/       -- as24 HTTP client, assert_assembles_http()
-    cc24-test-fixtures/   -- fixture path resolution, fixture management
+    tc24r-test-compile/    -- compile(): source -> assembly string
+    tc24r-test-golden/     -- golden_test(): compare against .expected.s
+    tc24r-test-cor24/      -- cor24-run path lookup, assemble_with_cor24_run()
+    tc24r-test-as24/       -- as24 HTTP client, assert_assembles_http()
+    tc24r-test-fixtures/   -- fixture path resolution, fixture management
 ```
 
 ### cli/ -- Entry Point (thin)
@@ -255,7 +255,7 @@ testing/
 ```
 cli/
   crates/
-    cc24/                 -- main(): parse args -> build config -> build
+    tc24r/                 -- main(): parse args -> build config -> build
                              pipeline -> read source -> run pipeline ->
                              write output
 ```
@@ -264,12 +264,12 @@ cli/
 
 Adding a new feature (e.g., switch/case):
 
-1. Add `Stmt::Switch` to cc24-ast (core)
-2. Add `Switch` token to cc24-token (core)
-3. Add keyword to cc24-lexer (lexer)
-4. Add parsing to cc24-parser (parser)
-5. Create `cc24-handle-switch` crate (codegen-handlers)
-6. Register handler in cc24-pipeline-builder (builder)
+1. Add `Stmt::Switch` to tc24r-ast (core)
+2. Add `Switch` token to tc24r-token (core)
+3. Add keyword to tc24r-lexer (lexer)
+4. Add parsing to tc24r-parser (parser)
+5. Create `tc24r-handle-switch` crate (codegen-handlers)
+6. Register handler in tc24r-pipeline-builder (builder)
 7. Create test in testing component
 8. Create demo
 
@@ -291,7 +291,7 @@ All existing tests must still pass.
 
 ### Phase 2: Extract handlers from monolithic codegen
 
-One handler at a time, extract from cc24-codegen into a handler crate.
+One handler at a time, extract from tc24r-codegen into a handler crate.
 Each extraction is a small commit. The monolithic codegen shrinks as
 handlers are extracted. Eventually the monolithic crate is empty and
 deleted.

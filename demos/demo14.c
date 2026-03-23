@@ -1,4 +1,4 @@
-// cc24 demo14 -- increment and decrement operators
+// tc24r demo14 -- increment and decrement operators
 //
 // New features:
 //   - Prefix: ++i, --i (returns new value)

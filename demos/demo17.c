@@ -1,4 +1,4 @@
-// cc24 demo17 -- multi-declaration (int x, y, z;)
+// tc24r demo17 -- multi-declaration (int x, y, z;)
 //
 // New feature:
 //   - Comma-separated declarations: int x = 1, y = 2, z;

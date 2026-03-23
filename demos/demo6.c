@@ -1,4 +1,4 @@
-// cc24 demo6 -- global char, global pointer, global array-like patterns
+// tc24r demo6 -- global char, global pointer, global array-like patterns
 //
 // New features / fixes:
 //   - Global char variables use .byte (not .word)

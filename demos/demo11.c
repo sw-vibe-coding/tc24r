@@ -1,4 +1,4 @@
-// cc24 demo11 -- logical AND (&&) and OR (||) with short-circuit
+// tc24r demo11 -- logical AND (&&) and OR (||) with short-circuit
 //
 // New features:
 //   - && operator with short-circuit (0 && x skips x, yields 0)

@@ -1,4 +1,4 @@
-// cc24 demo8 -- preprocessor #define
+// tc24r demo8 -- preprocessor #define
 //
 // New features:
 //   - #define NAME value (constant substitution)

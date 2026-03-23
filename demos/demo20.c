@@ -1,4 +1,4 @@
-// cc24 demo20 -- statement expressions (GCC extension)
+// tc24r demo20 -- statement expressions (GCC extension)
 //
 // New feature:
 //   - ({ stmt; stmt; expr; }) evaluates to last expression

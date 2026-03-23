@@ -1,4 +1,4 @@
-// cc24 demo10 -- #include, #pragma once, system header
+// tc24r demo10 -- #include, #pragma once, system header
 //
 // New features:
 //   - #include "file.h" (relative to source file)

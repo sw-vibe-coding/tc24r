@@ -1,6 +1,6 @@
 // Subset of chibicc/test/control.c
 // Tests: if/else, while, do-while, for, break, continue
-// Note: cc24 requires braces on if/else/while/for bodies
+// Note: tc24r requires braces on if/else/while/for bodies
 #include "test.h"
 
 int main() {

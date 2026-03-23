@@ -1,4 +1,4 @@
-// cc24 demo12 -- do...while loop
+// tc24r demo12 -- do...while loop
 //
 // New feature:
 //   - do { body } while (cond); -- executes body at least once

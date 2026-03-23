@@ -1,4 +1,4 @@
-// cc24 demo9 -- UART RX interrupt
+// tc24r demo9 -- UART RX interrupt
 //
 // New features:
 //   - __attribute__((interrupt)) ISR with automatic prologue/epilogue

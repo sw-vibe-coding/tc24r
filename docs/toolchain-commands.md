@@ -77,7 +77,7 @@ te /dev/ttyUSB0
 vim program.c
 
 # 2. Compile (MakerLisp compiler -- proprietary)
-cc24 program.c -o program.s
+tc24r program.c -o program.s
 
 # 3. Assemble
 as24 < program.s | longlgo > program.lgo
@@ -91,15 +91,15 @@ te /dev/ttyUSB0
 # G (go command)
 ```
 
-### For cc24 Development (This Project)
+### For tc24r Development (This Project)
 
-Since cc24 development happens on Mac with testing deferred to Linux:
+Since tc24r development happens on Mac with testing deferred to Linux:
 
 ```bash
 # 1. Write test C source
 vim tests/return_42.c
 
-# 2. Compile with cc24 (our compiler, under development)
+# 2. Compile with tc24r (our compiler, under development)
 cargo run -- tests/return_42.c -o tests/return_42.s
 
 # 3. Inspect generated assembly
@@ -168,7 +168,7 @@ gcc -o longlgo longlgo.c
 ## Notes
 
 - The assembler reads from stdin -- use `<` redirection or pipe.
-- The MakerLisp C compiler is proprietary and not available for cc24.
-  That is why we are building cc24 as an open-source alternative.
+- The MakerLisp C compiler is proprietary and not available for tc24r.
+  That is why we are building tc24r as an open-source alternative.
 - The cor24-rs emulator can run assembled programs without hardware,
   which is the primary testing path during development.

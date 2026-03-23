@@ -1,4 +1,4 @@
-// cc24 demo19 -- static and extern keywords
+// tc24r demo19 -- static and extern keywords
 //
 // New feature:
 //   - static/extern consumed as storage-class specifiers

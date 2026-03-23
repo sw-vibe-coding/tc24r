@@ -1,6 +1,6 @@
 # COR24 C Data Model
 
-Type sizes, alignment, signedness, and pointer model for the cc24 compiler.
+Type sizes, alignment, signedness, and pointer model for the tc24r compiler.
 
 ## Type Sizes
 
@@ -38,7 +38,7 @@ A 32-bit int would require:
 - Load/store pairs for every int access
 - Significant codegen complexity for a demo compiler
 
-This could be revisited later, but for cc24 v1, 24-bit int is correct.
+This could be revisited later, but for tc24r v1, 24-bit int is correct.
 
 ## Alignment
 
@@ -150,7 +150,7 @@ Structs are not supported in the initial compiler version. When added:
 
 ## Features Deferred
 
-The following are not supported in cc24 v1:
+The following are not supported in tc24r v1:
 
 - `long long` (would require 48-bit multi-word arithmetic)
 - `float`, `double` (no FPU; would need software emulation)

@@ -1,4 +1,4 @@
-// cc24 demo22 -- braceless control flow bodies
+// tc24r demo22 -- braceless control flow bodies
 //
 // New feature:
 //   - if (x) stmt; else stmt;  (without braces)

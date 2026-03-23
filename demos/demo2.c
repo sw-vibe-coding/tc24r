@@ -1,4 +1,4 @@
-// cc24 demo2 -- Phase 4 features: char, pointers, casts, MMIO
+// tc24r demo2 -- Phase 4 features: char, pointers, casts, MMIO
 //
 // New features since demo.c:
 //   - C comments (// and /* */)

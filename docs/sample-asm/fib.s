@@ -5,7 +5,7 @@
 ;       return fib(n-1) + fib(n-2);
 ;   }
 ; This is actual MakerLisp compiler output -- the gold standard
-; for what cc24 should produce.
+; for what tc24r should produce.
 
         .text
 

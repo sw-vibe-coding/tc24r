@@ -1,8 +1,8 @@
-// cc24 demo4 -- software divide and modulo
+// tc24r demo4 -- software divide and modulo
 //
 // New features:
-//   - Integer division (/) via software __cc24_div
-//   - Integer modulo (%) via software __cc24_mod
+//   - Integer division (/) via software __tc24r_div
+//   - Integer modulo (%) via software __tc24r_mod
 //
 // Expected: r0 = 42, UART output: "D4OK"
 

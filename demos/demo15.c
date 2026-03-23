@@ -1,4 +1,4 @@
-// cc24 demo15 -- ternary operator (? :)
+// tc24r demo15 -- ternary operator (? :)
 //
 // New feature:
 //   - Conditional expression: cond ? then_expr : else_expr

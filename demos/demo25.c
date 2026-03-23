@@ -1,4 +1,4 @@
-// cc24 demo25 -- struct support
+// tc24r demo25 -- struct support
 //
 // New features:
 //   - struct { type member; ... } definition

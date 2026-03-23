@@ -1,4 +1,4 @@
-// cc24 demo23 -- enum
+// tc24r demo23 -- enum
 //
 // New features:
 //   - enum { A, B, C } -- auto-incrementing constants
