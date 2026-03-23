@@ -68,6 +68,24 @@ fn parse_members(
     let mut offset = 0;
     while !ts.check(&TokenKind::RBrace) {
         let base_ty = parse_type_fn(ts)?;
+        // Anonymous struct/union member: flatten inner members into parent
+        if ts.check(&TokenKind::Semicolon) {
+            if let Type::Struct { members: inner, .. } = &base_ty {
+                for m in inner {
+                    let member_offset = if is_union { 0 } else { offset + m.offset };
+                    members.push(StructMember {
+                        name: m.name.clone(),
+                        ty: m.ty.clone(),
+                        offset: member_offset,
+                    });
+                }
+                if !is_union {
+                    offset += base_ty.size();
+                }
+                ts.expect(TokenKind::Semicolon)?;
+                continue;
+            }
+        }
         // Parse first member name + optional array suffix
         let name = ts.expect_ident()?;
         let ty = parse_member_array(ts, base_ty.clone())?;
