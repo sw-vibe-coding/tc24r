@@ -30,7 +30,10 @@ pub fn gen_deref_assign(
     gen_expr_fn: GenExprFn,
 ) {
     let is_byte = is_char_ptr(state, ptr);
-    if is_simple_expr(value, state) {
+    if is_simple_expr(value, state) && !is_global_var(value, state) {
+        // Safe to skip push/pop: value loads into r0 without clobbering r1.
+        // Globals are excluded because loading them uses r1 as scratch
+        // (la r1,_name; lw r0,0(r1)), which would clobber the ptr in r1.
         gen_expr_fn(ptr, state);
         emit!(state, "        mov     r1,r0");
         gen_expr_fn(value, state);
@@ -45,6 +48,15 @@ pub fn gen_deref_assign(
         emit!(state, "        sb      r0,0(r1)");
     } else {
         emit!(state, "        sw      r0,0(r1)");
+    }
+}
+
+/// Check whether `expr` is a global variable reference.
+fn is_global_var(expr: &Expr, state: &CodegenState) -> bool {
+    if let Expr::Ident(name) = expr {
+        state.globals.contains(name)
+    } else {
+        false
     }
 }
 

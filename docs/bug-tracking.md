@@ -167,6 +167,34 @@ the existing `local_types` check.
 
 ---
 
+### BUG-007: Array store with global-derived index always writes to index 0
+
+**Filed by:** tml24c
+**Fixed:** 2026-03-23
+**Component:** `tc24r-expr-pointer` (deref.rs)
+
+`offsets[idx] = counter` where both `offsets` and `counter` are globals
+always stored to index 0. The computed target address was clobbered
+before the store.
+
+```c
+int offsets[10]; int counter;
+void do_store() { int idx = counter; offsets[idx] = counter; }
+// actual output:  "0 0 0"
+// expected:       "0 1 2"
+```
+
+**Root cause:** The simple-value optimization in `gen_deref_assign()`
+moved the target address into r1, then loaded the value via
+`gen_expr_fn(value)` — but loading a global variable uses r1 as
+scratch (`la r1,_counter; lw r0,0(r1)`), clobbering the target address.
+
+**Fix:** Excluded global variables from the `gen_deref_assign` simple
+path (they require r1 as scratch when loaded into r0). Globals now
+use the safe push/pop path, preserving the target address in r1.
+
+---
+
 ## Open
 
 (none)
