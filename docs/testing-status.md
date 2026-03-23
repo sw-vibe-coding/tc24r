@@ -6,15 +6,14 @@ Last updated: 2026-03-22
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 22 | 22 | 100% | End-to-end compiler + emulator |
-| reg-rs regressions | 22 | 22 | 100% | Output stability checks |
+| tc24r demos | 28 | 28 | 100% | End-to-end compiler + emulator |
+| reg-rs regressions | 25 | 25 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
-| chibicc full | 3 | 41 | 7% | generic, pragma-once, stdhdr |
+| chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 0 | 11 | 0% | All need stdio.h |
-| bgc examples | 0 | 117 | 0% | All need stdio.h |
 | bgc examples | 1 | 117 | 1% | 116 blocked on stdio.h |
 
-## tc24r Demos (21/21)
+## tc24r Demos (28/28)
 
 | # | Demo | Features Tested |
 |---|------|----------------|
@@ -39,6 +38,13 @@ Last updated: 2026-03-22
 | 19 | demo19.c | static/extern keywords |
 | 20 | demo20.c | Statement expressions ({ }) |
 | 21 | demo21.c | Compound assignment (+=, -=, etc.) |
+| 22 | demo22.c | Braceless control flow bodies |
+| 23 | demo23.c | enum |
+| 24 | demo24.c | typedef |
+| 25 | demo25.c | struct (dot access, sizeof) |
+| 26 | demo26.c | switch/case (break, fall-through) |
+| 27 | demo27.c | Function prototypes (forward declarations, mutual recursion) |
+| 28 | demo28.c | union (shared memory, sizeof) |
 
 Run: `demos/run-demo<N>.sh`
 
@@ -57,33 +63,91 @@ features. Located in `tests/chibicc-subset/`.
 
 Run: `scripts/run-subset-tests.sh`
 
-## chibicc Full Tests (3/41)
+## chibicc Full Tests (6/41)
 
 Testing against `~/github/softwarewrighter/chibicc/test/*.c`.
 
-### Passing (3)
+### Passing (6)
 
 | Test | Notes |
 |------|-------|
-| generic | Empty after stripping unsupported features |
+| const | const type qualifiers |
+| decl | Declarations with type modifiers |
+| enum | enum declarations and usage |
+| generic | _Generic keyword support |
 | pragma-once | #pragma once inclusion guard |
-| stdhdr | System header inclusion (skips gracefully) |
+| stdhdr | System header inclusion |
 
-### Compile Fail (38)
+### Compile Fail (36) — Categorized
 
-Most common blockers:
-- Braceless if/while/for bodies (`if (x) stmt;`) -- nearly all tests
-- `goto` / labels -- control.c
-- `switch` / `case` -- control.c
-- `struct` / `union` / `.` member access -- 10+ tests
-- Complex lvalue increment (`(*p)++`) -- arith.c
-- Float/double literals -- arith.c, literal.c, cast.c
-- Binary/octal literals -- literal.c
-- `typedef` / `enum` keywords -- 3 tests
+#### Out of Scope: Floating Point (3 tests)
+
+COR24 has no FPU. These tests are permanently out of scope.
+
+| Test | Notes |
+|------|-------|
+| cast | float/double cast operations |
+| constexpr | float/double constant expressions |
+| float | Dedicated float/double test suite |
+
+#### Out of Scope: Hosted C / Standard Library (4 tests)
+
+tc24r is a freestanding compiler. Tests requiring hosted headers are out of scope.
+
+| Test | Blocker |
+|------|---------|
+| atomic | `<stdatomic.h>` |
+| attribute | `"stddef.h"` |
+| tls | `<stdio.h>`, _Thread_local |
+| varargs | `<stdarg.h>`, variadic functions |
+
+#### Partially Blocked by Float (9 tests)
+
+These tests contain some float/double usage mixed with integer tests.
+Progress possible by stripping float portions.
+
+| Test | Primary Blocker | Also Uses Float |
+|------|----------------|-----------------|
+| arith | Preprocessor test macros | float/double arithmetic |
+| builtin | __builtin functions | float types |
+| control | Preprocessor test macros | float literals |
+| function | Preprocessor test macros | float params |
+| generic | Passes (float parts skipped) | float in _Generic |
+| offsetof | `<stddef.h>` | double in struct |
+| sizeof | Preprocessor test macros | sizeof(float) |
+| stdhdr | Passes (float in headers) | float typedefs |
+| usualconv | Preprocessor test macros | float promotions |
+
+#### Actionable: Missing Language Features (20 tests)
+
+| Test | Blocking Feature |
+|------|-----------------|
+| alignof | _Alignof, _Alignas keywords |
+| alloca | Preprocessor test macros (#define ASSERT) |
+| asm | Extended inline asm syntax |
+| bitfield | Struct bitfield syntax (int x : 5) |
+| compat | _Noreturn, restrict, volatile qualifiers |
+| commonsym | Preprocessor test macros |
+| complit | Compound literals, complex struct init |
+| control | goto/labels, switch enhancements |
+| decl | Complex declaration parsing |
+| extern | inline keyword |
+| initializer | Designated initializers, short type |
+| line | #line directive, __LINE__, __FILE__ |
+| literal | Line continuation (backslash-newline) |
+| macro | Complex macro expansion, #include errors |
+| pointer | Array of pointers declaration |
+| sizeof | Preprocessor test macros |
+| string | \v escape, wide/unicode string literals |
+| typedef | Multiple declarators in typedef |
+| typeof | typeof operator |
+| unicode | UTF-8/Unicode character handling |
+| variable | Complex declarations, scoping |
+| vla | Variable-length arrays |
 
 Run: `scripts/run-chibicc-tests.sh`
 
-### Blockers Fixed
+### Blockers Fixed (cumulative)
 
 - Ternary `? :`, char literals, multi-decl, hex literals
 - Logical `&&` / `||`, break/continue, ++/--
@@ -91,8 +155,16 @@ Run: `scripts/run-chibicc-tests.sh`
 - Compound assignment `+=`, `-=`, etc.
 - Function-like macros (#define FOO(x) ...)
 - Integer suffix handling (U, L, LL)
-- Large literal truncation to 24 bits
-- Void return (`return;`)
+- Braceless control flow (`if (x) stmt;`)
+- enum, typedef, struct (dot and arrow access)
+- switch/case with break and fall-through
+- Function prototypes (forward declarations)
+- union (shared memory layout)
+- Conditional compilation (#if, #ifdef, #ifndef, #elif, #else, #endif, #undef)
+- Type modifiers: long, short, signed, unsigned (→ int on COR24)
+- inline keyword (accepted, ignored)
+- Escape sequences: \v, \f, \e
+- Unknown # directives silently skipped (#line, # nnn "file")
 
 ## beej-c-guide Examples (0/11)
 
@@ -106,8 +178,8 @@ without a stdio.h stub.
 | hello_world.c | printf (1 call) |
 | functions.c | printf (2 calls) |
 | pointers.c | printf (4 calls) |
-| structs.c | printf (3 calls), struct |
-| typedef.c | printf (1 call), typedef |
+| structs.c | printf (3 calls) |
+| typedef.c | printf (1 call) |
 | arrays.c | printf (18 calls) |
 | strings.c | printf, string.h |
 | pointers_arithmetic.c | printf, string.h |
@@ -117,7 +189,7 @@ without a stdio.h stub.
 
 Run: `scripts/run-beej-tests.sh`
 
-## bgc (Beej's Guide to C) Examples (0/117)
+## bgc (Beej's Guide to C) Examples (1/117)
 
 Testing against `/home/mike/bgc_download/bgc_source/examples/*.c`.
 
@@ -125,25 +197,13 @@ Testing against `/home/mike/bgc_download/bgc_source/examples/*.c`.
 - 1/117 blocked on `#include <stdalign.h>`
 - All 117 examples use printf and require a stdio.h implementation
 
-### Path to Progress for beej + bgc
-
-Both suites require a freestanding `stdio.h` with at least:
-- `printf(fmt, ...)` mapped to UART output
-- `NULL` and `EOF` defines
-- Optionally: `puts`, `putchar`, `getchar`
-
-This requires either varargs support or a fixed-arg printf workaround.
-The Arduino approach: provide `putchar` mapped to UART, then a minimal
-printf that calls putchar for each formatted character.
-
 ## Known Limitations Affecting Tests
 
-- **Braceless control flow**: Now supported (demo22).
-- **Local variable scoping**: Statement expression locals share stack
-  with outer scope locals of the same name (flat allocation).
+- **No float/double**: COR24 has no FPU. Float tests are out of scope.
 - **No varargs**: `printf` and similar functions cannot be implemented.
 - **24-bit int**: Arithmetic wraps at 24 bits. Tests using 32/64-bit
   values will see different results.
-- **No float/double**: Floating point tests are out of scope.
-- **sed portability**: Test runner uses GNU sed extensions not available
-  on macOS. See docs/known-issues.md.
+- **Local variable scoping**: Statement expression locals share stack
+  with outer scope locals of the same name (flat allocation).
+- **Preprocessor**: No #line, __LINE__, __FILE__. No complex macro
+  expansion (stringification, token pasting).

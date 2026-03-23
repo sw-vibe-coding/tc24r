@@ -1,24 +1,34 @@
 # tc24r Project Status
 
-Last updated: 2026-03-21
+Last updated: 2026-03-22
 
 ## Current State
 
 The compiler is functional and can compile real C programs to COR24 assembly
 that runs on hardware (COR24-TB FPGA board) and the cor24-rs emulator.
-12 working demos exercise all implemented features.
+28 working demos exercise all implemented features.
 
 ## Component Architecture
 
-The compiler is organized into 4 components with 14 crates total, each
+The compiler is organized into 14 components with ~50 crates total, each
 component being its own Cargo workspace under `components/`:
 
-| Component | Crates | Purpose |
-|-----------|--------|---------|
-| core | cc24-ast, cc24-error, cc24-span, cc24-token | Shared types: AST, tokens, spans, errors |
-| frontend | cc24-lexer, cc24-lexer-tests, cc24-parser, cc24-parser-tests, cc24-parse-stream, cc24-preprocess, cc24-preprocess-tests | Preprocessing, lexing, parsing |
-| backend | cc24-codegen, cc24-codegen-tests, cc24-codegen-validate | Code generation and validation |
-| cli | cc24 | CLI binary entry point |
+| Component | Purpose |
+|-----------|---------|
+| core | Shared types: AST, tokens, spans, errors, traits |
+| frontend | Preprocessing, lexing, parsing |
+| backend | Legacy codegen and validation |
+| codegen-emit | Assembly emission (core, data, load/store) |
+| codegen-expr | Expression codegen (call, literal, ops, pointer, variable, struct) |
+| codegen-ops | Operator codegen (arithmetic, bitwise, compare, divmod, incdec, logical, unary, type-infer) |
+| codegen-state | Codegen state management |
+| codegen-stmt | Statement codegen (control flow, simple statements) |
+| codegen-structure | Function structure (ISR, locals, prologue) |
+| config | Configuration and target definition |
+| dispatch | Codegen dispatch layer |
+| macros | Proc macros (asm-dsl, emit-macros, handler-macros) |
+| testing | Test harnesses (as24, compile, cor24, golden) |
+| cli | CLI binary entry point |
 
 ## Implemented Features
 
@@ -26,22 +36,33 @@ component being its own Cargo workspace under `components/`:
 - int (24-bit), char (8-bit), void
 - Pointers (int *, char **, arbitrary depth)
 - Arrays (int a[N], char buf[N])
+- struct (named and anonymous, dot and arrow access)
+- enum (named and anonymous)
+- typedef
 
 ### Expressions
-- Decimal and hex integer literals
+- Decimal and hex integer literals, character literals
 - String literals with escape sequences
 - All C binary operators: + - * / % & | ^ << >> == != < > <= >= && ||
-- Unary operators: - ~ ! & (address-of) * (dereference)
+- Unary operators: - ~ ! & (address-of) * (dereference) ++ --
+- Compound assignment: += -= *= /= %= &= |= ^= <<= >>=
+- Ternary operator (? :)
+- sizeof(type) and sizeof(expr)
 - Full C operator precedence
 - Pointer arithmetic with element-size scaling
 - Type cast expressions
 - Array indexing (read and write)
 - Function call expressions
+- Struct member access (dot and arrow)
+- Statement expressions ({ ... })
 
 ### Statements
 - Variable declarations with initialization
-- Assignment (simple, array element, dereference)
-- if/else, while, do...while, for
+- Multi-declarations (int x, y, z;)
+- Assignment (simple, array element, dereference, struct member)
+- if/else, while, do...while, for (braced and braceless)
+- switch/case/default (with fall-through and break)
+- break, continue
 - return (early return supported)
 - Expression statements
 - Inline asm("...")
@@ -50,6 +71,7 @@ component being its own Cargo workspace under `components/`:
 - Multiple parameters
 - Recursion
 - void functions
+- Function prototypes (forward declarations)
 - __attribute__((interrupt)) for ISR prologue/epilogue
 
 ### Globals
@@ -57,19 +79,19 @@ component being its own Cargo workspace under `components/`:
 - Correct .word/.byte emission by type
 
 ### Preprocessor
-- #define (constant substitution)
+- #define (constant and function-like macro substitution)
 - #include "..." (relative path)
 - #include <...> (system path with -I flag)
 - #pragma once
 
 ### Runtime
 - _start entry point calling _main
-- Software __cc24_div and __cc24_mod helpers
+- Software __tc24r_div and __tc24r_mod helpers
 - ISR support with register save/restore and rti
 
 ## Demos
 
-12 demos in the `demos/` directory, each with a run script:
+28 demos in the `demos/` directory, each with a run script:
 
 | Demo | Features Exercised |
 |------|--------------------|
@@ -85,20 +107,34 @@ component being its own Cargo workspace under `components/`:
 | demo10.c | #include, #pragma once, system headers, -I flag |
 | demo11.c | Logical && and || with short-circuit evaluation |
 | demo12.c | do...while loop |
+| demo13.c | break, continue |
+| demo14.c | Prefix/postfix ++, -- |
+| demo15.c | Ternary operator (? :) |
+| demo16.c | Character literals ('a', '\n') |
+| demo17.c | Multi-declaration (int x, y, z;) |
+| demo18.c | sizeof operator |
+| demo19.c | static/extern keywords |
+| demo20.c | Statement expressions ({ }) |
+| demo21.c | Compound assignment (+=, -=, etc.) |
+| demo22.c | Braceless control flow bodies |
+| demo23.c | enum |
+| demo24.c | typedef |
+| demo25.c | struct (dot access, sizeof) |
+| demo26.c | switch/case (break, fall-through) |
+| demo27.c | Function prototypes (forward declarations, mutual recursion) |
+| demo28.c | union (shared memory, sizeof) |
 
 ## Test Suite
 
-54 active tests, 13 ignored (require as24 HTTP service):
-
 | Layer | Crate | Count | Notes |
 |-------|-------|-------|-------|
-| Lexer unit tests | cc24-lexer-tests | 8 | Token types, operators, comments, hex, strings |
-| Parser unit tests | cc24-parser-tests | 11 | Statements, types, arrays, pointers, control flow |
-| Preprocessor tests | cc24-preprocess-tests | 8 | #define, #include, #pragma once |
-| Golden file tests | cc24-codegen-tests | 6 | Compile C, compare assembly output |
-| Codegen checks | cc24-codegen-tests | 2 | _start emission, ISR prologue/epilogue |
-| cor24-run validation | cc24-codegen-validate | 19 | Assemble output with cor24-run |
-| as24 HTTP validation | cc24-codegen-validate | 13 (ignored) | Validate with as24 service on port 7412 |
+| Lexer unit tests | tc24r-lexer-tests | 8 | Token types, operators, comments, hex, strings |
+| Parser unit tests | tc24r-parser-tests | 11 | Statements, types, arrays, pointers, control flow |
+| Preprocessor tests | tc24r-preprocess-tests | 8 | #define, #include, #pragma once |
+| Golden file tests | tc24r-codegen-tests | 7 | Compile C, compare assembly output |
+| Codegen checks | tc24r-codegen-tests | 2 | _start emission, ISR prologue/epilogue |
+| cor24-run validation | tc24r-codegen-validate | 19 | Assemble output with cor24-run |
+| as24 HTTP validation | tc24r-codegen-validate | 13 (ignored) | Validate with as24 service on port 7412 |
 
 Run all active tests:
 
@@ -124,8 +160,7 @@ cargo test --manifest-path components/backend/Cargo.toml -- --ignored
 
 ## Known Limitations
 
-- No switch/case, break/continue, ++/--, sizeof, typedef, enum, struct
-- No function prototypes (forward declarations)
+- No float/double (COR24 has no FPU -- out of scope)
 - Branch range limited to signed 8-bit offset (~127 bytes)
 - No optimization passes
 - Single translation unit only

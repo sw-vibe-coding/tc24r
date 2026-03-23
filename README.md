@@ -6,15 +6,18 @@ The approach is inspired by [chibicc](https://github.com/rui314/chibicc), a smal
 
 ## Project Status
 
-tc24r is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 14 components, ~50 crates, 17 demos all passing. See [docs/status.md](docs/status.md) for detailed status and test counts.
+tc24r is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 14 components, ~50 crates, 28 demos all passing. See [docs/status.md](docs/status.md) for detailed status and test counts.
 
 ### What Works
 
 - Types: int (24-bit), char (8-bit), void, pointers, arrays
 - All standard C operators with correct precedence
-- Control flow: if/else, while, do...while, for, break, continue
+- Control flow: if/else, while, do...while, for, break, continue, switch/case
 - Ternary operator (? :), character literals, multi-declaration
 - Prefix/postfix increment and decrement (++i, i--)
+- Compound assignment: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
+- sizeof, typedef, enum, struct (dot and arrow access), union
+- Function prototypes (forward declarations, mutual recursion)
 - Functions with multiple parameters, recursion, ISR support
 - Globals, string constants, hex literals
 - Pointer arithmetic with element-size scaling
@@ -25,11 +28,8 @@ tc24r is **functional** -- it compiles real C programs to COR24 assembly that ru
 
 ### What Does Not Work Yet
 
-- switch/case
-- +=, -=, and other compound assignment
-- sizeof, typedef, enum, struct, union
-- Function prototypes (forward declarations)
 - Multi-file compilation
+- float/double (COR24 has no FPU -- out of scope)
 
 ## COR24 Architecture at a Glance
 
@@ -113,9 +113,9 @@ cargo run -- run path/to/program.s
 
 | Test Suite | Pass | Total | Notes |
 |-----------|------|-------|-------|
-| tc24r demos | 25 | 25 | End-to-end compiler + emulator |
+| tc24r demos | 28 | 28 | End-to-end compiler + emulator |
 | chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
-| chibicc full | 5 | 41 | const, enum, generic, pragma-once, stdhdr |
+| chibicc full | 6 | 41 | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 0 | 11 | All need stdio.h |
 | bgc examples | 0 | 117 | All need stdio.h |
 
