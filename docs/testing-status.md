@@ -6,14 +6,14 @@ Last updated: 2026-03-22
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 39 | 39 | 100% | End-to-end compiler + emulator |
+| tc24r demos | 40 | 40 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 25 | 25 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 1 | 117 | 1% | 116 blocked on stdio.h |
 
-## tc24r Demos (39/39)
+## tc24r Demos (40/40)
 
 | # | Demo | Features Tested |
 |---|------|----------------|
@@ -56,6 +56,7 @@ Last updated: 2026-03-22
 | 37 | demo37.c | Anonymous struct/union members (C11) |
 | 38 | demo38.c | Struct brace initializer (struct s x = {1, 2}) |
 | 39 | demo39.c | printf via stdio.h, long branches, varargs syntax |
+| 40 | demo40.c | malloc/free/calloc via stdlib.h (bump allocator) |
 
 Run: `demos/run-demo<N>.sh`
 
