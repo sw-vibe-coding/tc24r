@@ -152,10 +152,58 @@ fn parse_one_declarator(ts: &mut TokenStream, base_ty: Type) -> Result<Stmt, Com
         ts.expect(TokenKind::RBracket)?;
         ty = Type::Array(Box::new(ty), size as usize);
     }
-    let init = if ts.eat(TokenKind::Assign) {
-        Some(parse_expr(ts)?)
-    } else {
-        None
-    };
-    Ok(Stmt::LocalDecl { name, ty, init })
+    // Struct/array brace initializer: struct s x = {1, 2};
+    if ts.eat(TokenKind::Assign) {
+        if ts.check(&TokenKind::LBrace) {
+            return parse_brace_init(ts, name, ty);
+        }
+        let init = Some(parse_expr(ts)?);
+        return Ok(Stmt::LocalDecl { name, ty, init });
+    }
+    Ok(Stmt::LocalDecl {
+        name,
+        ty,
+        init: None,
+    })
+}
+
+/// Parse brace initializer: struct s x = {1, 2};
+/// Desugars to: LocalDecl x + member assignments.
+fn parse_brace_init(ts: &mut TokenStream, name: String, ty: Type) -> Result<Stmt, CompileError> {
+    ts.expect(TokenKind::LBrace)?;
+    let mut values = Vec::new();
+    if !ts.check(&TokenKind::RBrace) {
+        loop {
+            values.push(parse_expr(ts)?);
+            if !ts.eat(TokenKind::Comma) {
+                break;
+            }
+            // Allow trailing comma: {1, 2,}
+            if ts.check(&TokenKind::RBrace) {
+                break;
+            }
+        }
+    }
+    ts.expect(TokenKind::RBrace)?;
+
+    let mut stmts = vec![Stmt::LocalDecl {
+        name: name.clone(),
+        ty: ty.clone(),
+        init: None,
+    }];
+
+    // Generate member assignments based on struct member order
+    if let Type::Struct { members, .. } = &ty {
+        for (i, val) in values.into_iter().enumerate() {
+            if let Some(member) = members.get(i) {
+                stmts.push(Stmt::Expr(Expr::MemberAssign {
+                    object: Box::new(Expr::Ident(name.clone())),
+                    member: member.name.clone(),
+                    value: Box::new(val),
+                }));
+            }
+        }
+    }
+
+    Ok(Stmt::Block(Block { stmts }))
 }
