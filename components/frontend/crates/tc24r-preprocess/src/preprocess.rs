@@ -32,11 +32,34 @@ pub(crate) struct Context {
 }
 
 pub(crate) fn process_text(source: &str, ctx: &mut Context) -> String {
+    // Join lines ending with backslash (line continuation)
+    let joined = join_continued_lines(source);
     let mut output = String::new();
-    for line in source.lines() {
+    for line in joined.lines() {
         process_line(line, ctx, &mut output);
     }
     output
+}
+
+/// Join lines ending with `\` (backslash-newline continuation).
+fn join_continued_lines(source: &str) -> String {
+    let mut result = String::with_capacity(source.len());
+    let mut continuation = false;
+    for line in source.lines() {
+        if continuation {
+            // Append to previous line (no newline between)
+        } else if !result.is_empty() {
+            result.push('\n');
+        }
+        if line.ends_with('\\') {
+            result.push_str(&line[..line.len() - 1]);
+            continuation = true;
+        } else {
+            result.push_str(line);
+            continuation = false;
+        }
+    }
+    result
 }
 
 fn process_line(line: &str, ctx: &mut Context, output: &mut String) {

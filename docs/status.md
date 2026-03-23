@@ -6,7 +6,7 @@ Last updated: 2026-03-22
 
 The compiler is functional and can compile real C programs to COR24 assembly
 that runs on hardware (COR24-TB FPGA board) and the cor24-rs emulator.
-29 working demos exercise all implemented features.
+30 working demos exercise all implemented features.
 
 ## Component Architecture
 
@@ -91,7 +91,7 @@ component being its own Cargo workspace under `components/`:
 
 ## Demos
 
-29 demos in the `demos/` directory, each with a run script:
+30 demos in the `demos/` directory, each with a run script:
 
 | Demo | Features Exercised |
 |------|--------------------|
@@ -124,6 +124,7 @@ component being its own Cargo workspace under `components/`:
 | demo27.c | Function prototypes (forward declarations, mutual recursion) |
 | demo28.c | union (shared memory, sizeof) |
 | demo29.c | sizeof with array types (int[4], int[3][4]) |
+| demo30.c | Line continuation (backslash-newline) |
 
 ## Test Suite
 
