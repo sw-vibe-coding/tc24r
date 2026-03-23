@@ -68,13 +68,14 @@ fn parse_members(
     let mut offset = 0;
     while !ts.check(&TokenKind::RBrace) {
         let base_ty = parse_type_fn(ts)?;
-        // Parse first member name
+        // Parse first member name + optional array suffix
         let name = ts.expect_ident()?;
-        let size = base_ty.size();
+        let ty = parse_member_array(ts, base_ty.clone())?;
+        let size = ty.size();
         let member_offset = if is_union { 0 } else { offset };
         members.push(StructMember {
             name,
-            ty: base_ty.clone(),
+            ty,
             offset: member_offset,
         });
         if !is_union {
@@ -83,10 +84,12 @@ fn parse_members(
         // Comma-separated members of same type: int a, b;
         while ts.eat(TokenKind::Comma) {
             let name = ts.expect_ident()?;
+            let ty = parse_member_array(ts, base_ty.clone())?;
+            let size = ty.size();
             let member_offset = if is_union { 0 } else { offset };
             members.push(StructMember {
                 name,
-                ty: base_ty.clone(),
+                ty,
                 offset: member_offset,
             });
             if !is_union {
@@ -96,6 +99,22 @@ fn parse_members(
         ts.expect(TokenKind::Semicolon)?;
     }
     Ok(members)
+}
+
+/// Parse optional array suffix on a struct member: char a[3];
+fn parse_member_array(ts: &mut TokenStream, mut ty: Type) -> Result<Type, CompileError> {
+    while ts.eat(TokenKind::LBracket) {
+        let TokenKind::IntLit(size) = ts.peek().kind else {
+            return Err(CompileError::new(
+                "expected array size in struct member",
+                Some(ts.current_span()),
+            ));
+        };
+        ts.advance();
+        ts.expect(TokenKind::RBracket)?;
+        ty = Type::Array(Box::new(ty), size as usize);
+    }
+    Ok(ty)
 }
 
 fn lookup_named_struct(ts: &TokenStream, tag: &Option<String>) -> Result<Type, CompileError> {
