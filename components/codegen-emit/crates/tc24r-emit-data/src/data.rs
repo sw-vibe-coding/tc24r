@@ -20,10 +20,24 @@ pub fn emit_data_section(state: &mut CodegenState, program: &Program) {
             Some(Expr::IntLit(v)) => *v,
             _ => 0,
         };
-        if g.ty == Type::Char {
-            emit!(state, "        .byte   {val}");
-        } else {
-            emit!(state, "        .word   {val}");
+        match &g.ty {
+            Type::Char => {
+                emit!(state, "        .byte   {val}");
+            }
+            Type::Array(elem_ty, count) => {
+                // Emit `count` zero-initialized elements
+                let directive = if **elem_ty == Type::Char {
+                    ".byte"
+                } else {
+                    ".word"
+                };
+                for _ in 0..*count {
+                    emit!(state, "        {directive}   0");
+                }
+            }
+            _ => {
+                emit!(state, "        .word   {val}");
+            }
         }
     }
     for (i, s) in state.string_literals.clone().iter().enumerate() {

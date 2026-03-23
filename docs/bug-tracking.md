@@ -116,6 +116,31 @@ large functions auto-expand far branches (tml24c: assembles cleanly).
 
 ---
 
+### BUG-005: Global arrays allocated as single word regardless of declared size
+
+**Filed by:** tml24c
+**Fixed:** 2026-03-23
+**Component:** `tc24r-emit-data` (data.rs)
+
+Global array declarations like `int arr[100]` were emitted as `.word 0`
+(3 bytes) instead of 100 × `.word 0` (300 bytes). All global arrays
+overlapped in memory.
+
+```c
+int arr[100];
+// generated: .word 0  (3 bytes — wrong)
+// expected: 100 × .word 0  (300 bytes)
+```
+
+**Root cause:** `emit_data_section()` only checked for `Type::Char` vs
+everything else, without handling `Type::Array`. Arrays were treated
+as a single word.
+
+**Fix:** Added `Type::Array` match arm that emits the correct number
+of `.word` or `.byte` directives based on element type and count.
+
+---
+
 ## Open
 
 (none)
