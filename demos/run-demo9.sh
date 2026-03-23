@@ -30,9 +30,9 @@ OUTPUT=$(cor24-run --run "$DEMO_S" --dump --speed 0 --time 5 --uart-input "A" 2>
 echo "$OUTPUT"
 echo ""
 
-R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | sed 's/.*(\s*//' | sed 's/\s*)//')
-HALTED=$(echo "$OUTPUT" | grep "Halted:" | head -1 | sed 's/.*Halted: //')
-INT_EN=$(echo "$OUTPUT" | grep "IntEn:" | head -1 | sed 's/.*IntEn:  //' | awk '{print $1}')
+R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
+HALTED=$(echo "$OUTPUT" | grep "Halted:" | head -1 | awk '{print $2}')
+INT_EN=$(echo "$OUTPUT" | grep "IntEn:" | head -1 | awk '{print $3}')
 
 echo "=== Validation ==="
 PASS=true

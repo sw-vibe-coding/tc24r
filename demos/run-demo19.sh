@@ -14,7 +14,7 @@ echo "$OUTPUT"
 echo ""
 R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
 HALTED=$(echo "$OUTPUT" | grep "Halted:" | head -1 | awk '{print $2}')
-UART=$(echo "$OUTPUT" | grep "UART TX log:" | sed 's/.*UART TX log:   //' | tr -d '"')
+UART=$(echo "$OUTPUT" | grep "UART TX log:" | awk -F'UART TX log:' '{print $2}' | tr -d ' "')
 echo "=== Validation ==="
 PASS=true
 if [ "$HALTED" = "true" ]; then echo "  [PASS] CPU halted"; else echo "  [FAIL] no halt"; PASS=false; fi

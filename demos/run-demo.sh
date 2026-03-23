@@ -40,8 +40,8 @@ echo "$OUTPUT"
 echo ""
 
 # Validate result
-R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | sed 's/.*(\s*//' | sed 's/\s*)//')
-HALTED=$(echo "$OUTPUT" | grep "Halted:" | head -1 | sed 's/.*Halted: //')
+R0=$(echo "$OUTPUT" | grep "r0:" | head -1 | awk -F'[()]' '{print $2}' | tr -d ' ')
+HALTED=$(echo "$OUTPUT" | grep "Halted:" | head -1 | awk '{print $2}')
 
 echo "=== Validation ==="
 PASS=true
