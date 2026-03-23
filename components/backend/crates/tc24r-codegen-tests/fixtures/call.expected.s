@@ -14,13 +14,9 @@ _add:
         push    r1
         mov     fp,sp
         lw      r0,9(fp)
-        push    r0
-        lw      r0,12(fp)
-        mov     r1,r0
-        pop     r0
+        lw      r1,12(fp)
         add     r0,r1
-        la      r2,L0
-        jmp     (r2)
+        bra     L0
 L0:
         mov     sp,fp
         pop     r1
@@ -41,8 +37,7 @@ _main:
         la      r0,_add
         jal     r1,(r0)
         add     sp,6
-        la      r2,L1
-        jmp     (r2)
+        bra     L1
 L1:
         mov     sp,fp
         pop     r1

@@ -448,7 +448,9 @@ dependencies = [
 name = "tc24r-ops-compare"
 version = "0.1.0"
 dependencies = [
+ "tc24r-ast",
  "tc24r-codegen-state",
+ "tc24r-emit-core",
  "tc24r-emit-macros",
 ]
 
@@ -582,6 +584,7 @@ dependencies = [
  "tc24r-codegen-state",
  "tc24r-emit-core",
  "tc24r-emit-macros",
+ "tc24r-ops-compare",
  "tc24r-stmt-simple",
  "tc24r-type-infer",
 ]
@@ -668,6 +671,7 @@ version = "0.1.0"
 dependencies = [
  "tc24r-ast",
  "tc24r-codegen-state",
+ "tc24r-emit-macros",
 ]
 
 [[package]]

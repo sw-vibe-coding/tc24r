@@ -2,15 +2,17 @@
 
 use tc24r_ast::{Block, Expr, Stmt};
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_core::{emit_brf, new_label};
+use tc24r_emit_core::new_label;
 use tc24r_emit_macros::emit;
 use tc24r_stmt_simple::GenStmtFn;
 use tc24r_type_infer::GenExprFn;
 
+use crate::condition::gen_condition_loop;
+
 /// Generate code for `do { body } while (cond);`.
 ///
-/// Body executes first, then condition is checked. Continue jumps to
-/// the condition check, not the top of the loop.
+/// Body executes first, then condition is checked. Uses fused compare+branch
+/// when the condition is a comparison operator.
 pub fn gen_do_while(
     state: &mut CodegenState,
     body: &Block,
@@ -27,9 +29,7 @@ pub fn gen_do_while(
     emit!(state, "{loop_label}:");
     emit_block(state, &body.stmts, gen_stmt_fn);
     emit!(state, "{cont_label}:");
-    gen_expr_fn(cond, state);
-    emit!(state, "        ceq     r0,z");
-    emit_brf(state, &loop_label);
+    gen_condition_loop(state, cond, &loop_label, gen_expr_fn);
     emit!(state, "{done_label}:");
 
     state.break_labels.pop();

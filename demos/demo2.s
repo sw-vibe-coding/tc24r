@@ -13,11 +13,9 @@ _led_on:
         push    r2
         push    r1
         mov     fp,sp
-        lc      r0,0
-        push    r0
         la      r0,16711680
         mov     r1,r0
-        pop     r0
+        lc      r0,0
         sb      r0,0(r1)
 L0:
         mov     sp,fp
@@ -32,11 +30,9 @@ _led_off:
         push    r2
         push    r1
         mov     fp,sp
-        lc      r0,1
-        push    r0
         la      r0,16711680
         mov     r1,r0
-        pop     r0
+        lc      r0,1
         sb      r0,0(r1)
 L1:
         mov     sp,fp
@@ -54,20 +50,15 @@ _uart_putc:
 L3:
         la      r0,16711937
         lbu     r0,0(r0)
-        push    r0
-        la      r0,128
-        mov     r1,r0
-        pop     r0
+        la      r1,128
         and     r0,r1
         ceq     r0,z
         brt     L4
         bra     L3
 L4:
-        lw      r0,9(fp)
-        push    r0
         la      r0,16711936
         mov     r1,r0
-        pop     r0
+        lw      r0,9(fp)
         sb      r0,0(r1)
 L2:
         mov     sp,fp
@@ -90,29 +81,15 @@ _main:
         lc      r0,66
         sw      r0,-9(fp)
         lw      r0,-6(fp)
-        push    r0
-        lc      r0,65
-        mov     r1,r0
-        pop     r0
+        lc      r1,65
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        mov     r0,c
-        ceq     r0,z
         brt     L7
         lc      r0,0
         sw      r0,-3(fp)
 L7:
         lw      r0,-9(fp)
-        push    r0
-        lc      r0,66
-        mov     r1,r0
-        pop     r0
+        lc      r1,66
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        mov     r0,c
-        ceq     r0,z
         brt     L9
         lc      r0,0
         sw      r0,-3(fp)
@@ -124,35 +101,19 @@ L9:
         sw      r0,-15(fp)
         lw      r0,-15(fp)
         lw      r0,0(r0)
-        push    r0
-        lc      r0,123
-        mov     r1,r0
-        pop     r0
+        lc      r1,123
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        mov     r0,c
-        ceq     r0,z
         brt     L11
         lc      r0,0
         sw      r0,-3(fp)
 L11:
-        la      r0,456
-        push    r0
         lw      r0,-15(fp)
         mov     r1,r0
-        pop     r0
+        la      r0,456
         sw      r0,0(r1)
         lw      r0,-12(fp)
-        push    r0
-        la      r0,456
-        mov     r1,r0
-        pop     r0
+        la      r1,456
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        mov     r0,c
-        ceq     r0,z
         brt     L13
         lc      r0,0
         sw      r0,-3(fp)
@@ -164,15 +125,8 @@ L13:
         sw      r0,-21(fp)
         lw      r0,-21(fp)
         lbu     r0,0(r0)
-        push    r0
-        lc      r0,77
-        mov     r1,r0
-        pop     r0
+        lc      r1,77
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        mov     r0,c
-        ceq     r0,z
         brt     L15
         lc      r0,0
         sw      r0,-3(fp)
@@ -180,14 +134,9 @@ L15:
         la      r0,_led_on
         jal     r1,(r0)
         lw      r0,-3(fp)
-        push    r0
-        lc      r0,1
-        mov     r1,r0
-        pop     r0
+        lc      r1,1
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        brt     L17
+        brf     L17
         lc      r0,79
         push    r0
         la      r0,_uart_putc
@@ -205,14 +154,9 @@ L15:
         add     sp,3
 L17:
         lw      r0,-3(fp)
-        push    r0
-        lc      r0,1
-        mov     r1,r0
-        pop     r0
+        lc      r1,1
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        brt     L19
+        brf     L19
         lc      r0,42
         bra     L5
 L19:

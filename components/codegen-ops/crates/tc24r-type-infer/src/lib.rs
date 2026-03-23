@@ -1,8 +1,10 @@
-//! Type inference for COR24 code generation.
+//! Type inference and operand classification for COR24 code generation.
 
 mod infer;
+mod simple;
 
 pub use infer::expr_type;
+pub use simple::{gen_simple_into_r1, is_simple_expr};
 
 /// Callback type for expression code generation.
 ///

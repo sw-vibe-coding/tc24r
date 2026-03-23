@@ -18,30 +18,17 @@ _main:
         sw      r0,-3(fp)
 L1:
         lw      r0,-3(fp)
-        push    r0
-        lc      r0,5
-        mov     r1,r0
-        pop     r0
+        lc      r1,5
         cls     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        brf     L3
-        la      r2,L2
-        jmp     (r2)
-L3:
+        brf     L2
         lw      r0,-3(fp)
-        push    r0
-        lc      r0,1
-        mov     r1,r0
-        pop     r0
+        lc      r1,1
         add     r0,r1
         sw      r0,-3(fp)
-        la      r2,L1
-        jmp     (r2)
+        bra     L1
 L2:
         lw      r0,-3(fp)
-        la      r2,L0
-        jmp     (r2)
+        bra     L0
 L0:
         mov     sp,fp
         pop     r1

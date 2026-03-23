@@ -19,13 +19,9 @@ _main:
         lc      r0,3
         sw      r0,-6(fp)
         lw      r0,-3(fp)
-        push    r0
-        lw      r0,-6(fp)
-        mov     r1,r0
-        pop     r0
+        lw      r1,-6(fp)
         add     r0,r1
-        la      r2,L0
-        jmp     (r2)
+        bra     L0
 L0:
         mov     sp,fp
         pop     r1

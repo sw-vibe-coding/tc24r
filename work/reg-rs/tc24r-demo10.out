@@ -29,7 +29,7 @@ void led_on() {
 
 Source: demo10.c
 ---
-// cc24 demo10 -- #include, #pragma once, system header
+// tc24r demo10 -- #include, #pragma once, system header
 //
 // New features:
 //   - #include "file.h" (relative to source file)
@@ -85,20 +85,15 @@ _putc:
 L1:
         la      r0,16711937
         lbu     r0,0(r0)
-        push    r0
-        la      r0,128
-        mov     r1,r0
-        pop     r0
+        la      r1,128
         and     r0,r1
         ceq     r0,z
         brt     L2
         bra     L1
 L2:
-        lw      r0,9(fp)
-        push    r0
         la      r0,16711936
         mov     r1,r0
-        pop     r0
+        lw      r0,9(fp)
         sb      r0,0(r1)
 L0:
         mov     sp,fp
@@ -125,10 +120,7 @@ L4:
         jal     r1,(r0)
         add     sp,3
         lw      r0,9(fp)
-        push    r0
-        lc      r0,1
-        mov     r1,r0
-        pop     r0
+        lc      r1,1
         add     r0,r1
         sw      r0,9(fp)
         bra     L4
@@ -146,11 +138,9 @@ _led_on:
         push    r2
         push    r1
         mov     fp,sp
-        lc      r0,0
-        push    r0
         la      r0,16711680
         mov     r1,r0
-        pop     r0
+        lc      r0,0
         sb      r0,0(r1)
 L6:
         mov     sp,fp
@@ -169,29 +159,15 @@ _main:
         lc      r0,1
         sw      r0,-3(fp)
         la      r0,16711680
-        push    r0
-        la      r0,16711680
-        mov     r1,r0
-        pop     r0
+        la      r1,16711680
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        mov     r0,c
-        ceq     r0,z
         brt     L9
         lc      r0,0
         sw      r0,-3(fp)
 L9:
         la      r0,16711937
-        push    r0
-        la      r0,16711937
-        mov     r1,r0
-        pop     r0
+        la      r1,16711937
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        mov     r0,c
-        ceq     r0,z
         brt     L11
         lc      r0,0
         sw      r0,-3(fp)
@@ -199,14 +175,9 @@ L11:
         la      r0,_led_on
         jal     r1,(r0)
         lw      r0,-3(fp)
-        push    r0
-        lc      r0,1
-        mov     r1,r0
-        pop     r0
+        lc      r1,1
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        brt     L13
+        brf     L13
         la      r0,_S0
         push    r0
         la      r0,_puts
@@ -231,20 +202,20 @@ _S0:
 
 Assembling and running on COR24 emulator...
 
-Assembled 209 bytes
+Assembled 180 bytes
 Running (speed: max IPS, time limit: 10s)...
 
-[UART TX @ 334] 'D'  (0x44)
-[UART TX @ 334] '1'  (0x31)
-[UART TX @ 334] '0'  (0x30)
-[UART TX @ 334] 'O'  (0x4F)
-[UART TX @ 334] 'K'  (0x4B)
-[UART TX @ 334] '\n'
+[UART TX @ 265] 'D'  (0x44)
+[UART TX @ 265] '1'  (0x31)
+[UART TX @ 265] '0'  (0x30)
+[UART TX @ 265] 'O'  (0x4F)
+[UART TX @ 265] 'K'  (0x4B)
+[UART TX @ 265] '\n'
 
 UART output: D10OK
 
 
-Executed 334 instructions
+Executed 265 instructions
 CPU halted (self-branch detected)
 
 === Registers ===
@@ -256,32 +227,31 @@ CPU halted (self-branch detected)
   sp:  0xFEEC00
 
 === Emulator ===
-  Instructions: 335
+  Instructions: 266
   Halted: true
 
 === SRAM 000000-0FFFFF (1 MB) ===
-  000000: 29 6A 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)j..%....~e)...8|
-  000010: 00 7D 29 80 00 00 5A 79 0D C8 15 00 13 EB 4D 09  |.})...Zy......M.|
-  000020: 7D 29 00 01 FF 5A 79 81 00 69 7A 7B 7C 27 80 7F  |})...Zy..iz{|'..|
-  000030: 7E 65 4D 09 38 00 C8 15 16 4D 09 38 00 7D 29 07  |~eM.8....M.8.}).|
-  000040: 00 00 25 0C 03 4D 09 7D 44 01 5A 79 01 A6 09 13  |..%..M.}D.Zy....|
-  000050: DF 69 7A 7B 7C 27 80 7F 7E 65 44 00 7D 29 00 00  |.iz{|'..~eD.})..|
-  000060: FF 5A 79 81 00 69 7A 7B 7C 27 80 7F 7E 65 0C FD  |.Zy..iz{|'..~e..|
-  000070: 44 01 A6 FD 29 00 00 FF 7D 29 00 00 FF 5A 79 16  |D...)...})...Zy.|
-  000080: 62 C8 62 C8 15 02 44 00 A6 FD 29 01 01 FF 7D 29  |b.b...D...)...})|
-  000090: 01 01 FF 5A 79 16 62 C8 62 C8 15 02 44 00 A6 FD  |...Zy.b.b...D...|
-  0000A0: 29 56 00 00 25 4D FD 7D 44 01 5A 79 16 62 C8 15  |)V..%M.}D.Zy.b..|
-  0000B0: 0E 29 CA 00 00 7D 29 2E 00 00 25 0C 03 44 2A 13  |.)...})...%..D*.|
-  0000C0: 02 44 00 13 FE 69 7A 7B 7C 27 44 31 30 4F 4B 0A  |.D...iz{|'D10OK.|
-  0000D0..0FFFFF: 1048368 bytes all zero
+  000000: 29 60 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)`..%....~e)...8|
+  000010: 00 2A 80 00 00 0D C8 15 00 13 EE 29 00 01 FF 5A  |.*.........)...Z|
+  000020: 4D 09 81 00 69 7A 7B 7C 27 80 7F 7E 65 4D 09 38  |M...iz{|'..~eM.8|
+  000030: 00 C8 15 13 4D 09 38 00 7D 29 07 00 00 25 0C 03  |....M.8.})...%..|
+  000040: 4D 09 45 01 01 A6 09 13 E2 69 7A 7B 7C 27 80 7F  |M.E......iz{|'..|
+  000050: 7E 65 29 00 00 FF 5A 44 00 81 00 69 7A 7B 7C 27  |~e)...ZD...iz{|'|
+  000060: 80 7F 7E 65 0C FD 44 01 A6 FD 29 00 00 FF 2A 00  |..~e..D...)...*.|
+  000070: 00 FF 16 15 02 44 00 A6 FD 29 01 01 FF 2A 01 01  |.....D...)...*..|
+  000080: FF 16 15 02 44 00 A6 FD 29 4E 00 00 25 4D FD 45  |....D...)N..%M.E|
+  000090: 01 16 14 0E 29 AD 00 00 7D 29 29 00 00 25 0C 03  |....)...}))..%..|
+  0000A0: 44 2A 13 02 44 00 13 FE 69 7A 7B 7C 27 44 31 30  |D*..D...iz{|'D10|
+  0000B0: 4F 4B 0A 00 00 00 00 00 00 00 00 00 00 00 00 00  |OK..............|
+  0000C0..0FFFFF: 1048384 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
 
 === EBR FEE000-FEFFFF (8 KB, stack) ===
   FEE000..FEEBCF: 3024 bytes all zero
-  FEEBD0: 00 00 00 00 00 00 00 00 00 0A 00 00 43 00 00 00  |............C...|
-  FEEBE0: 00 00 E8 EB FE CF 00 00 BB 00 00 00 00 00 F7 EB  |................|
-  FEEBF0: FE D0 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
+  FEEBD0: 00 00 00 00 00 00 00 00 00 00 00 00 3E 00 00 00  |............>...|
+  FEEBE0: 00 00 E8 EB FE 0A 00 00 9E 00 00 00 00 00 F7 EB  |................|
+  FEEBF0: FE B3 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
   FEEC00..FEFFFF: 5120 bytes all zero
 
 === I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===

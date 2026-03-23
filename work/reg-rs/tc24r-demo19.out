@@ -1,18 +1,18 @@
 === tc24r Demo 19: static/extern ===
-Assembled 236 bytes
+Assembled 204 bytes
 Running (speed: max IPS, time limit: 10s)...
 
-[UART TX @ 349] 'D'  (0x44)
-[UART TX @ 349] '1'  (0x31)
-[UART TX @ 349] '9'  (0x39)
-[UART TX @ 349] 'O'  (0x4F)
-[UART TX @ 349] 'K'  (0x4B)
-[UART TX @ 349] '\n'
+[UART TX @ 277] 'D'  (0x44)
+[UART TX @ 277] '1'  (0x31)
+[UART TX @ 277] '9'  (0x39)
+[UART TX @ 277] 'O'  (0x4F)
+[UART TX @ 277] 'K'  (0x4B)
+[UART TX @ 277] '\n'
 
 UART output: D19OK
 
 
-Executed 349 instructions
+Executed 277 instructions
 CPU halted (self-branch detected)
 
 === Registers ===
@@ -24,34 +24,32 @@ CPU halted (self-branch detected)
   sp:  0xFEEC00
 
 === Emulator ===
-  Instructions: 350
+  Instructions: 278
   Halted: true
 
 === SRAM 000000-0FFFFF (1 MB) ===
-  000000: 29 69 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)i..%....~e)...8|
-  000010: 00 7D 29 80 00 00 5A 79 0D C8 15 00 13 EB 4D 09  |.})...Zy......M.|
-  000020: 7D 29 00 01 FF 5A 79 81 00 69 7A 7B 7C 27 80 7F  |})...Zy..iz{|'..|
-  000030: 7E 65 4D 09 38 00 C8 15 16 4D 09 38 00 7D 29 07  |~eM.8....M.8.}).|
-  000040: 00 00 25 0C 03 4D 09 7D 44 01 5A 79 01 A6 09 13  |..%..M.}D.Zy....|
-  000050: DF 69 7A 7B 7C 27 80 7F 7E 65 4D 09 7D 4D 0C 5A  |.iz{|'..~eM.}M.Z|
-  000060: 79 01 13 FE 69 7A 7B 7C 27 80 7F 7E 65 0C FD 44  |y...iz{|'..~e..D|
-  000070: 01 A6 FD 2A E2 00 00 4B 00 7D 44 0A 5A 79 16 62  |...*...K.}D.Zy.b|
-  000080: C8 62 C8 15 02 44 00 A6 FD 44 0C 7D 44 14 7D 29  |.b...D...D.}D.})|
-  000090: 56 00 00 25 0C 06 7D 44 20 5A 79 16 62 C8 62 C8  |V..%..}D Zy.b.b.|
-  0000A0: 15 02 44 00 A6 FD 44 2A 2A E2 00 00 A4 00 2A E2  |..D...D**.....*.|
-  0000B0: 00 00 4B 00 7D 44 2A 5A 79 16 62 C8 62 C8 15 02  |..K.}D*Zy.b.b...|
-  0000C0: 44 00 A6 FD 4D FD C8 15 0E 29 E5 00 00 7D 29 2E  |D...M....)...}).|
-  0000D0: 00 00 25 0C 03 44 2A 13 02 44 00 13 FE 69 7A 7B  |..%..D*..D...iz{|
-  0000E0: 7C 27 2A 00 00 44 31 39 4F 4B 0A 00 00 00 00 00  ||'*..D19OK......|
-  0000F0..0FFFFF: 1048336 bytes all zero
+  000000: 29 5E 00 00 25 13 FC 80 7F 7E 65 29 01 01 FF 38  |)^..%....~e)...8|
+  000010: 00 2A 80 00 00 0D C8 15 00 13 EE 29 00 01 FF 5A  |.*.........)...Z|
+  000020: 4D 09 81 00 69 7A 7B 7C 27 80 7F 7E 65 4D 09 38  |M...iz{|'..~eM.8|
+  000030: 00 C8 15 13 4D 09 38 00 7D 29 07 00 00 25 0C 03  |....M.8.})...%..|
+  000040: 4D 09 45 01 01 A6 09 13 E2 69 7A 7B 7C 27 80 7F  |M.E......iz{|'..|
+  000050: 7E 65 4D 09 51 0C 01 13 FE 69 7A 7B 7C 27 80 7F  |~eM.Q....iz{|'..|
+  000060: 7E 65 0C FD 44 01 A6 FD 2A C2 00 00 4B 00 45 0A  |~e..D...*...K.E.|
+  000070: 16 15 02 44 00 A6 FD 44 0C 7D 44 14 7D 29 4E 00  |...D...D.}D.})N.|
+  000080: 00 25 0C 06 45 20 16 15 02 44 00 A6 FD 44 2A 2A  |.%..E ...D...D**|
+  000090: C2 00 00 A4 00 2A C2 00 00 4B 00 45 2A 16 15 02  |.....*...K.E*...|
+  0000A0: 44 00 A6 FD 4D FD C8 15 0E 29 C5 00 00 7D 29 29  |D...M....)...}))|
+  0000B0: 00 00 25 0C 03 44 2A 13 02 44 00 13 FE 69 7A 7B  |..%..D*..D...iz{|
+  0000C0: 7C 27 2A 00 00 44 31 39 4F 4B 0A 00 00 00 00 00  ||'*..D19OK......|
+  0000D0..0FFFFF: 1048368 bytes all zero
 
 === Unmapped 100000-FEDDFF (14.9 MB, not installed) ===
 
 === EBR FEE000-FEFFFF (8 KB, stack) ===
   FEE000..FEEBCF: 3024 bytes all zero
-  FEEBD0: 00 00 00 00 00 00 00 00 00 0A 00 00 43 00 00 00  |............C...|
-  FEEBE0: 00 00 E8 EB FE EA 00 00 D3 00 00 00 00 00 F7 EB  |................|
-  FEEBF0: FE EB 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
+  FEEBD0: 00 00 00 00 00 00 00 00 00 00 00 00 3E 00 00 00  |............>...|
+  FEEBE0: 00 00 E8 EB FE 0A 00 00 B3 00 00 00 00 00 F7 EB  |................|
+  FEEBF0: FE CB 00 00 01 00 00 05 00 00 00 00 00 00 00 00  |................|
   FEEC00..FEFFFF: 5120 bytes all zero
 
 === I/O FF0000-FFFFFF (64 KB, memory-mapped peripherals) ===

@@ -1,5 +1,6 @@
 //! Control-flow statement code generation (If, While, DoWhile, For).
 
+mod condition;
 mod dowhile_stmt;
 mod for_stmt;
 mod if_stmt;

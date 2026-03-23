@@ -3,7 +3,7 @@
 use tc24r_ast::{Expr, Type};
 use tc24r_codegen_state::CodegenState;
 use tc24r_emit_macros::emit;
-use tc24r_type_infer::expr_type;
+use tc24r_type_infer::{expr_type, is_simple_expr};
 
 /// Callback type for recursive expression generation.
 pub type GenExprFn = fn(&Expr, &mut CodegenState);
@@ -20,6 +20,9 @@ pub fn gen_deref(state: &mut CodegenState, ptr: &Expr, gen_expr_fn: GenExprFn) {
 }
 
 /// Assign through a pointer: evaluate `value`, evaluate `ptr`, store.
+///
+/// When value is a simple expression, evaluates ptr first then loads
+/// value directly into r0, skipping push/pop.
 pub fn gen_deref_assign(
     state: &mut CodegenState,
     ptr: &Expr,
@@ -27,11 +30,17 @@ pub fn gen_deref_assign(
     gen_expr_fn: GenExprFn,
 ) {
     let is_byte = is_char_ptr(state, ptr);
-    gen_expr_fn(value, state);
-    emit!(state, "        push    r0");
-    gen_expr_fn(ptr, state);
-    emit!(state, "        mov     r1,r0");
-    emit!(state, "        pop     r0");
+    if is_simple_expr(value, state) {
+        gen_expr_fn(ptr, state);
+        emit!(state, "        mov     r1,r0");
+        gen_expr_fn(value, state);
+    } else {
+        gen_expr_fn(value, state);
+        emit!(state, "        push    r0");
+        gen_expr_fn(ptr, state);
+        emit!(state, "        mov     r1,r0");
+        emit!(state, "        pop     r0");
+    }
     if is_byte {
         emit!(state, "        sb      r0,0(r1)");
     } else {

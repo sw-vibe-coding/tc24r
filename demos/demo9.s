@@ -38,23 +38,16 @@ _main:
         mov     fp,sp
         la r0,_uart_isr
         mov iv,r0
-        lc      r0,1
-        push    r0
         la      r0,16711696
         mov     r1,r0
-        pop     r0
+        lc      r0,1
         sb      r0,0(r1)
 L2:
         la      r1,_rx_char
         lw      r0,0(r1)
-        push    r0
-        lc      r0,0
-        mov     r1,r0
-        pop     r0
+        lc      r1,0
         ceq     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        brt     L3
+        brf     L3
         bra     L2
 L3:
         la      r1,_rx_char

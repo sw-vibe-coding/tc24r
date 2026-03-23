@@ -4,7 +4,7 @@ use tc24r_ast::{BinOp, Expr, Type};
 use tc24r_codegen_state::CodegenState;
 use tc24r_emit_core::load_immediate;
 use tc24r_emit_macros::emit;
-use tc24r_type_infer::{GenExprFn, expr_type};
+use tc24r_type_infer::{GenExprFn, expr_type, gen_simple_into_r1, is_simple_expr};
 
 /// Generate add or subtract, dispatching to the appropriate variant.
 pub fn gen_add_sub(
@@ -40,11 +40,16 @@ fn gen_ptr_diff(
         Some(Type::Ptr(inner)) => inner.size(),
         _ => 1,
     };
-    gen_expr_fn(lhs, state);
-    emit!(state, "        push    r0");
-    gen_expr_fn(rhs, state);
-    emit!(state, "        mov     r1,r0");
-    emit!(state, "        pop     r0");
+    if is_simple_expr(rhs, state) {
+        gen_expr_fn(lhs, state);
+        gen_simple_into_r1(rhs, state);
+    } else {
+        gen_expr_fn(lhs, state);
+        emit!(state, "        push    r0");
+        gen_expr_fn(rhs, state);
+        emit!(state, "        mov     r1,r0");
+        emit!(state, "        pop     r0");
+    }
     emit!(state, "        sub     r0,r1");
     if elem_size > 1 {
         emit_div_by_size(state, elem_size);
@@ -79,15 +84,22 @@ fn gen_ptr_offset(
         Some(Type::Ptr(inner)) => inner.size(),
         _ => 1,
     };
-    gen_expr_fn(lhs, state);
-    emit!(state, "        push    r0");
-    gen_expr_fn(rhs, state);
-    if scale > 1 {
-        emit!(state, "        lc      r1,{scale}");
-        emit!(state, "        mul     r0,r1");
+    // When rhs is simple AND no scaling needed, skip push/pop entirely.
+    // When scaling is needed, we must use r0 for the multiply, so push/pop.
+    if is_simple_expr(rhs, state) && scale <= 1 {
+        gen_expr_fn(lhs, state);
+        gen_simple_into_r1(rhs, state);
+    } else {
+        gen_expr_fn(lhs, state);
+        emit!(state, "        push    r0");
+        gen_expr_fn(rhs, state);
+        if scale > 1 {
+            emit!(state, "        lc      r1,{scale}");
+            emit!(state, "        mul     r0,r1");
+        }
+        emit!(state, "        mov     r1,r0");
+        emit!(state, "        pop     r0");
     }
-    emit!(state, "        mov     r1,r0");
-    emit!(state, "        pop     r0");
     emit_add_or_sub(state, op);
 }
 
@@ -99,11 +111,16 @@ fn gen_plain_add_sub(
     rhs: &Expr,
     gen_expr_fn: GenExprFn,
 ) {
-    gen_expr_fn(lhs, state);
-    emit!(state, "        push    r0");
-    gen_expr_fn(rhs, state);
-    emit!(state, "        mov     r1,r0");
-    emit!(state, "        pop     r0");
+    if is_simple_expr(rhs, state) {
+        gen_expr_fn(lhs, state);
+        gen_simple_into_r1(rhs, state);
+    } else {
+        gen_expr_fn(lhs, state);
+        emit!(state, "        push    r0");
+        gen_expr_fn(rhs, state);
+        emit!(state, "        mov     r1,r0");
+        emit!(state, "        pop     r0");
+    }
     emit_add_or_sub(state, op);
 }
 

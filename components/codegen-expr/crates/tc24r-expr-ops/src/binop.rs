@@ -8,7 +8,7 @@ use tc24r_ops_bitwise::{gen_bitwise_and, gen_bitwise_or, gen_bitwise_xor, gen_sh
 use tc24r_ops_compare::gen_compare_eq;
 use tc24r_ops_divmod::gen_divmod_call;
 use tc24r_ops_logical::{gen_log_and, gen_log_or};
-use tc24r_type_infer::GenExprFn;
+use tc24r_type_infer::{GenExprFn, gen_simple_into_r1, is_simple_expr};
 
 /// Dispatch a binary operation to the appropriate L2 handler.
 pub fn gen_binop_dispatch(
@@ -29,12 +29,20 @@ pub fn gen_binop_dispatch(
 }
 
 /// Evaluate lhs into r0, rhs into r1 (standard two-operand setup).
+///
+/// When rhs is a simple expression (literal, variable), loads it directly
+/// into r1 without push/pop, saving 3 instructions.
 fn eval_lhs_rhs(state: &mut CodegenState, lhs: &Expr, rhs: &Expr, gen_expr_fn: GenExprFn) {
-    gen_expr_fn(lhs, state);
-    emit!(state, "        push    r0");
-    gen_expr_fn(rhs, state);
-    emit!(state, "        mov     r1,r0");
-    emit!(state, "        pop     r0");
+    if is_simple_expr(rhs, state) {
+        gen_expr_fn(lhs, state);
+        gen_simple_into_r1(rhs, state);
+    } else {
+        gen_expr_fn(lhs, state);
+        emit!(state, "        push    r0");
+        gen_expr_fn(rhs, state);
+        emit!(state, "        mov     r1,r0");
+        emit!(state, "        pop     r0");
+    }
 }
 
 /// Dispatch a simple binop (r0=lhs, r1=rhs already set).

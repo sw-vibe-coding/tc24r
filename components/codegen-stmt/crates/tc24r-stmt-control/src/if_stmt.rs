@@ -2,14 +2,17 @@
 
 use tc24r_ast::{Block, Expr, Stmt};
 use tc24r_codegen_state::CodegenState;
-use tc24r_emit_core::{emit_bra, emit_brt, new_label};
+use tc24r_emit_core::{emit_bra, new_label};
 use tc24r_emit_macros::emit;
 use tc24r_stmt_simple::GenStmtFn;
 use tc24r_type_infer::GenExprFn;
 
+use crate::condition::gen_condition_skip;
+
 /// Generate code for `if (cond) { then } else { else }`.
 ///
-/// Evaluates condition, branches around then-body (and optional else-body).
+/// Uses fused compare+branch when the condition is a comparison operator,
+/// avoiding boolean materialization.
 pub fn gen_if(
     state: &mut CodegenState,
     cond: &Expr,
@@ -21,13 +24,12 @@ pub fn gen_if(
     let else_label = new_label(state);
     let done_label = new_label(state);
 
-    gen_expr_fn(cond, state);
-    emit!(state, "        ceq     r0,z");
-    if else_body.is_some() {
-        emit_brt(state, &else_label);
+    let skip_label = if else_body.is_some() {
+        &else_label
     } else {
-        emit_brt(state, &done_label);
-    }
+        &done_label
+    };
+    gen_condition_skip(state, cond, skip_label, gen_expr_fn);
 
     emit_block(state, &then_body.stmts, gen_stmt_fn);
 

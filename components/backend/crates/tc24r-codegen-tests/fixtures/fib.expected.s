@@ -14,26 +14,14 @@ _fib:
         push    r1
         mov     fp,sp
         lw      r0,9(fp)
-        push    r0
-        lc      r0,2
-        mov     r1,r0
-        pop     r0
+        lc      r1,2
         cls     r0,r1
-        mov     r0,c
-        ceq     r0,z
-        brf     L3
-        la      r2,L2
-        jmp     (r2)
-L3:
+        brf     L2
         lc      r0,1
-        la      r2,L0
-        jmp     (r2)
+        bra     L0
 L2:
         lw      r0,9(fp)
-        push    r0
-        lc      r0,1
-        mov     r1,r0
-        pop     r0
+        lc      r1,1
         sub     r0,r1
         push    r0
         la      r0,_fib
@@ -41,10 +29,7 @@ L2:
         add     sp,3
         push    r0
         lw      r0,9(fp)
-        push    r0
-        lc      r0,2
-        mov     r1,r0
-        pop     r0
+        lc      r1,2
         sub     r0,r1
         push    r0
         la      r0,_fib
@@ -53,8 +38,7 @@ L2:
         mov     r1,r0
         pop     r0
         add     r0,r1
-        la      r2,L0
-        jmp     (r2)
+        bra     L0
 L0:
         mov     sp,fp
         pop     r1
@@ -73,9 +57,8 @@ _main:
         la      r0,_fib
         jal     r1,(r0)
         add     sp,3
-        la      r2,L4
-        jmp     (r2)
-L4:
+        bra     L3
+L3:
         mov     sp,fp
         pop     r1
         pop     r2
