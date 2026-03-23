@@ -6,14 +6,14 @@ Last updated: 2026-03-22
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 28 | 28 | 100% | End-to-end compiler + emulator |
+| tc24r demos | 29 | 29 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 25 | 25 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 0 | 11 | 0% | All need stdio.h |
 | bgc examples | 1 | 117 | 1% | 116 blocked on stdio.h |
 
-## tc24r Demos (28/28)
+## tc24r Demos (29/29)
 
 | # | Demo | Features Tested |
 |---|------|----------------|
@@ -45,6 +45,7 @@ Last updated: 2026-03-22
 | 26 | demo26.c | switch/case (break, fall-through) |
 | 27 | demo27.c | Function prototypes (forward declarations, mutual recursion) |
 | 28 | demo28.c | union (shared memory, sizeof) |
+| 29 | demo29.c | sizeof with array types (int[4], int[3][4]) |
 
 Run: `demos/run-demo<N>.sh`
 

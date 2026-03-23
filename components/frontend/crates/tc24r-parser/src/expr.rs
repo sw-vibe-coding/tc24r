@@ -1,6 +1,6 @@
 //! Expression entry point, assignment, unary, and primary parsing.
 
-use tc24r_ast::{Expr, UnaryOp};
+use tc24r_ast::{Expr, Type, UnaryOp};
 use tc24r_error::CompileError;
 use tc24r_parse_stream::TokenStream;
 use tc24r_parser_compound::{desugar_compound, eat_compound_assign, make_assign};
@@ -196,7 +196,19 @@ fn parse_ident_or_call(ts: &mut TokenStream) -> Result<Expr, CompileError> {
 fn parse_sizeof(ts: &mut TokenStream) -> Result<Expr, CompileError> {
     ts.expect(TokenKind::LParen)?;
     if is_type_start(ts) {
-        let ty = parse_type(ts)?;
+        let mut ty = parse_type(ts)?;
+        // Handle array suffix: sizeof(int[4]), sizeof(char[16])
+        while ts.eat(TokenKind::LBracket) {
+            let TokenKind::IntLit(size) = ts.peek().kind else {
+                return Err(CompileError::new(
+                    "expected array size in sizeof",
+                    Some(ts.current_span()),
+                ));
+            };
+            ts.advance();
+            ts.expect(TokenKind::RBracket)?;
+            ty = Type::Array(Box::new(ty), size as usize);
+        }
         ts.expect(TokenKind::RParen)?;
         return Ok(Expr::IntLit(ty.size()));
     }
