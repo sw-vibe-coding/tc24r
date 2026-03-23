@@ -2,12 +2,12 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-CC24="$ROOT_DIR/components/cli/target/release/cc24"
+CC24="$ROOT_DIR/components/cli/target/release/tc24r"
 DEMO_C="$SCRIPT_DIR/demo15.c"
 DEMO_S="$SCRIPT_DIR/demo15.s"
 if [ ! -f "$CC24" ]; then cargo build --manifest-path "$ROOT_DIR/components/cli/Cargo.toml" --release --quiet; fi
 
-echo "=== cc24 Demo 15: Ternary Operator ==="
+echo "=== tc24r Demo 15: Ternary Operator ==="
 "$CC24" "$DEMO_C" -o "$DEMO_S"
 OUTPUT=$(cor24-run --run "$DEMO_S" --dump --speed 0 --time 10 2>&1)
 echo "$OUTPUT"

@@ -3,16 +3,16 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-CC24="$ROOT_DIR/components/cli/target/release/cc24"
+CC24="$ROOT_DIR/components/cli/target/release/tc24r"
 DEMO_C="$SCRIPT_DIR/demo6.c"
 DEMO_S="$SCRIPT_DIR/demo6.s"
 
 if [ ! -f "$CC24" ]; then
-    echo "Building cc24..."
+    echo "Building tc24r..."
     cargo build --manifest-path "$ROOT_DIR/components/cli/Cargo.toml" --release --quiet
 fi
 
-echo "=== cc24 Demo 6: Global Char, Global Pointer ==="
+echo "=== tc24r Demo 6: Global Char, Global Pointer ==="
 echo ""
 echo "Source: demo6.c"
 echo "---"

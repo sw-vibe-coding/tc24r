@@ -1,12 +1,12 @@
-# cc24 -- C Compiler for the COR24 FPGA Soft CPU
+# tc24r -- Tiny C Compiler for the COR24 FPGA Soft CPU
 
-cc24 is an open-source C compiler targeting the **COR24** (C-Oriented RISC, 24-bit) instruction set architecture. COR24 is an FPGA soft CPU designed by [MakerLisp](https://makerlisp.com) for efficient C code execution. The existing MakerLisp C compiler is proprietary -- cc24 provides an open-source alternative.
+tc24r is an open-source C compiler targeting the **COR24** (C-Oriented RISC, 24-bit) instruction set architecture. COR24 is an FPGA soft CPU designed by [MakerLisp](https://makerlisp.com) for efficient C code execution. The existing MakerLisp C compiler (cc24) is proprietary -- tc24r provides an open-source alternative.
 
-The approach is inspired by [chibicc](https://github.com/rui314/chibicc), a small educational C compiler. cc24 follows the same architecture pattern (recursive-descent parser, direct assembly emission) but is written from scratch in Rust.
+The approach is inspired by [chibicc](https://github.com/rui314/chibicc), a small educational C compiler. tc24r follows the same architecture pattern (recursive-descent parser, direct assembly emission) but is written from scratch in Rust.
 
 ## Project Status
 
-The compiler is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 14 components, ~50 crates, 17 demos all passing. See [docs/status.md](docs/status.md) for detailed status and test counts.
+tc24r is **functional** -- it compiles real C programs to COR24 assembly that runs on hardware and the cor24-rs emulator. 14 components, ~50 crates, 17 demos all passing. See [docs/status.md](docs/status.md) for detailed status and test counts.
 
 ### What Works
 
@@ -76,7 +76,7 @@ scripts/build-all.sh
 This runs each component's `scripts/build.sh` in dependency order. The release binary is produced at:
 
 ```
-components/cli/target/release/cc24
+components/cli/target/release/tc24r
 ```
 
 To build a single component:
@@ -88,7 +88,7 @@ cargo build --manifest-path components/<name>/Cargo.toml
 ## Usage
 
 ```bash
-cc24 <input.c> [-o output.s] [-I dir]
+tc24r <input.c> [-o output.s] [-I dir]
 ```
 
 - `<input.c>` -- C source file to compile
@@ -99,7 +99,7 @@ cc24 <input.c> [-o output.s] [-I dir]
 
 ```bash
 # Compile C to COR24 assembly
-cc24 program.c -o program.s
+tc24r program.c -o program.s
 
 # Assemble (requires as24 from COR24-TB archive)
 as24 < program.s | longlgo > program.lgo
@@ -113,7 +113,7 @@ cargo run -- run path/to/program.s
 
 | Test Suite | Pass | Total | Notes |
 |-----------|------|-------|-------|
-| cc24 demos | 25 | 25 | End-to-end compiler + emulator |
+| tc24r demos | 25 | 25 | End-to-end compiler + emulator |
 | chibicc-subset | 5 | 5 | Curated subsets of chibicc tests |
 | chibicc full | 5 | 41 | const, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 0 | 11 | All need stdio.h |

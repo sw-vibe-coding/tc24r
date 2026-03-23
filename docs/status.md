@@ -1,4 +1,4 @@
-# cc24 Project Status
+# tc24r Project Status
 
 Last updated: 2026-03-21
 
@@ -114,7 +114,7 @@ cargo test --manifest-path components/backend/Cargo.toml -- --ignored
 
 ## Architecture Decisions
 
-- **Language**: Rust (not a chibicc fork -- same architecture, written from scratch)
+- **Language**: Rust (not a chibicc fork -- same architecture pattern, written from scratch)
 - **int size**: 24-bit (native COR24 word)
 - **No IR**: AST directly to assembly text (chibicc style)
 - **Expression evaluation**: push lhs, evaluate rhs, pop lhs into r1, operate

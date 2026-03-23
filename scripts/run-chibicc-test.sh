@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# Run a single chibicc test through cc24 -> cor24-run pipeline.
+# Run a single chibicc test through tc24r -> cor24-run pipeline.
 #
 # Usage: scripts/run-chibicc-test.sh <test-name>
 #   e.g.: scripts/run-chibicc-test.sh arith
 #
 # Reads test from ~/github/softwarewrighter/chibicc/test/<name>.c
-# Copies to temp, compiles with cc24, runs with cor24-run.
+# Copies to temp, compiles with tc24r, runs with cor24-run.
 # Exit 0 if r0=0 (all assertions pass), exit 1 otherwise.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-CC24="$ROOT_DIR/components/cli/target/release/cc24"
+CC24="$ROOT_DIR/components/cli/target/release/tc24r"
 INCLUDE_DIR="$ROOT_DIR/include"
 CHIBICC_TEST="${HOME}/github/softwarewrighter/chibicc/test"
 
@@ -35,12 +35,12 @@ cargo build --manifest-path "$ROOT_DIR/components/cli/Cargo.toml" --release --qu
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# Adapt the test file for cc24 freestanding:
+# Adapt the test file for tc24r freestanding:
 # - Our include/test.h provides ASSERT as a function-like macro
 # - Strip printf/exit/hosted-C helper declarations
 # - Strip the common file's helper function implementations
 # Note: sed usage here is not portable to macOS BSD sed.
-# TODO: Replace with a Rust cc24-adapt tool (see docs/known-issues.md)
+# TODO: Replace with a Rust tc24r-adapt tool (see docs/known-issues.md)
 sed \
     -e '/printf/d' \
     -e '/sprintf/d' \
@@ -66,8 +66,8 @@ sed \
     "$SRC" > "$TMPDIR/$NAME.c"
 
 # Compile
-if ! "$CC24" "$TMPDIR/$NAME.c" -o "$TMPDIR/$NAME.s" -I "$INCLUDE_DIR" -I "$CHIBICC_TEST" 2>"$TMPDIR/cc24.err"; then
-    echo "COMPILE_FAIL: $NAME -- $(head -1 "$TMPDIR/cc24.err")"
+if ! "$CC24" "$TMPDIR/$NAME.c" -o "$TMPDIR/$NAME.s" -I "$INCLUDE_DIR" -I "$CHIBICC_TEST" 2>"$TMPDIR/tc24r.err"; then
+    echo "COMPILE_FAIL: $NAME -- $(head -1 "$TMPDIR/tc24r.err")"
     exit 1
 fi
 

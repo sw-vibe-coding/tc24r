@@ -1,4 +1,4 @@
-=== cc24 Demo 12: do...while ===
+=== tc24r Demo 12: do...while ===
 
 Compiling demo12.c -> demo12.s
 Assembling and running on COR24 emulator...

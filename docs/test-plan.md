@@ -1,15 +1,15 @@
-# cc24 chibicc Test Plan
+# tc24r chibicc Test Plan
 
 ## Overview
 
 The chibicc repository at `~/github/softwarewrighter/chibicc/test/` contains
-41 test files. These are used IN PLACE (not copied to cc24 repo) to gauge
-cc24 completeness. At test time, files are copied to temp, compiled with
-cc24, assembled and run with cor24-run.
+41 test files. These are used IN PLACE (not copied to tc24r repo) to gauge
+tc24r completeness. At test time, files are copied to temp, compiled with
+tc24r, assembled and run with cor24-run.
 
 ## Current Status: 2/41 Compile
 
-Tested 2026-03-22 with adapted test.h (cc24 lacks macro args for `#y`).
+Tested 2026-03-22 with adapted test.h (tc24r lacks macro args for `#y`).
 
 ## Empirical Classification
 
@@ -84,7 +84,7 @@ potentially 13/41 (32%) assuming those tests have no other blockers.
 
 ## Adapted test.h
 
-chibicc's test.h uses `#y` (stringification) which cc24 does not
+chibicc's test.h uses `#y` (stringification) which tc24r does not
 support. The adapted version:
 
 ```c

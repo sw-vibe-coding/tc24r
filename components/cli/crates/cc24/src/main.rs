@@ -1,4 +1,4 @@
-//! cc24 -- C compiler targeting the COR24 ISA.
+//! tc24r -- Tiny C compiler targeting the COR24 ISA.
 
 use std::path::Path;
 use std::process;
@@ -7,7 +7,7 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     if args.len() < 2 {
-        eprintln!("usage: cc24 <input.c> [-o output.s] [-I dir]");
+        eprintln!("usage: tc24r <input.c> [-o output.s] [-I dir]");
         process::exit(1);
     }
 
@@ -23,7 +23,7 @@ fn read_source(path: &str) -> String {
     match std::fs::read_to_string(path) {
         Ok(s) => s,
         Err(e) => {
-            eprintln!("cc24: cannot read {path}: {e}");
+            eprintln!("tc24r: cannot read {path}: {e}");
             process::exit(1);
         }
     }
@@ -42,7 +42,7 @@ fn compile(source: &str, source_dir: Option<&Path>, include_dirs: &[String]) -> 
     let tokens = match cc24_lexer::Lexer::new(&preprocessed).tokenize() {
         Ok(t) => t,
         Err(e) => {
-            eprintln!("cc24: {e}");
+            eprintln!("tc24r: {e}");
             process::exit(1);
         }
     };
@@ -50,7 +50,7 @@ fn compile(source: &str, source_dir: Option<&Path>, include_dirs: &[String]) -> 
     let program = match cc24_parser::parse(tokens) {
         Ok(p) => p,
         Err(e) => {
-            eprintln!("cc24: {e}");
+            eprintln!("tc24r: {e}");
             process::exit(1);
         }
     };
@@ -67,7 +67,7 @@ fn write_output(args: &[String], output: &str) {
     match output_path {
         Some(path) => {
             if let Err(e) = std::fs::write(path, output) {
-                eprintln!("cc24: cannot write {path}: {e}");
+                eprintln!("tc24r: cannot write {path}: {e}");
                 process::exit(1);
             }
         }

@@ -1,4 +1,4 @@
-=== cc24 Demo 11: Logical AND/OR ===
+=== tc24r Demo 11: Logical AND/OR ===
 
 Compiling demo11.c -> demo11.s
 Assembling and running on COR24 emulator...

@@ -39,7 +39,7 @@ halted status, LED state, and UART output from cor24-run dump output.
 
 ### Recommendation
 
-Write a small `cc24-validate` tool in Rust that replaces the shell
+Write a small `tc24r-validate` tool in Rust that replaces the shell
 script validation. It would parse cor24-run output, extract register
 values, check assertions, and output a consistent PASS/FAIL format.
 This eliminates all sed/grep portability issues.

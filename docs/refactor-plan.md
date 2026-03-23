@@ -1,4 +1,4 @@
-# cc24 Architecture Refactor Plan
+# tc24r Architecture Refactor Plan
 
 ## Design Philosophy
 

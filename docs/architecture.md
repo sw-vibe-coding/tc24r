@@ -1,4 +1,4 @@
-# cc24 Architecture
+# tc24r Architecture
 
 ## Component Layout
 

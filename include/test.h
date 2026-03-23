@@ -1,6 +1,6 @@
 #pragma once
 
-// Adapted chibicc test header for cc24 freestanding compiler.
+// Adapted chibicc test header for tc24r freestanding compiler.
 //
 // chibicc tests use ASSERT(expected, actual) which calls printf/exit.
 // This version uses a global flag checked via return code:

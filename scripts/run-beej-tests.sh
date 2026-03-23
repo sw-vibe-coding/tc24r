@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Check which beej-c-guide examples compile with cc24.
+# Check which beej-c-guide examples compile with tc24r.
 # These are hosted-C examples (use printf, etc.) so we only check compilation.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-CC24="$ROOT_DIR/components/cli/target/release/cc24"
+CC24="$ROOT_DIR/components/cli/target/release/tc24r"
 BEEJ_DIR="${HOME}/github/softwarewrighter/beej-c-guide/src"
 
 cargo build --manifest-path "$ROOT_DIR/components/cli/Cargo.toml" --release --quiet
@@ -26,7 +26,7 @@ for f in "$BEEJ_DIR"/*.c; do
         echo "  COMPILES: $name"
         pass=$((pass + 1))
     else
-        err=$("$CC24" "$f" -o /dev/null 2>&1 | head -1 | sed 's/cc24: //')
+        err=$("$CC24" "$f" -o /dev/null 2>&1 | head -1 | sed 's/tc24r: //')
         echo "  FAIL: $name -- $err"
         fail=$((fail + 1))
     fi

@@ -6,7 +6,7 @@ Last updated: 2026-03-22
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| cc24 demos | 22 | 22 | 100% | End-to-end compiler + emulator |
+| tc24r demos | 22 | 22 | 100% | End-to-end compiler + emulator |
 | reg-rs regressions | 22 | 22 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 3 | 41 | 7% | generic, pragma-once, stdhdr |
@@ -14,7 +14,7 @@ Last updated: 2026-03-22
 | bgc examples | 0 | 117 | 0% | All need stdio.h |
 | bgc examples | 1 | 117 | 1% | 116 blocked on stdio.h |
 
-## cc24 Demos (21/21)
+## tc24r Demos (21/21)
 
 | # | Demo | Features Tested |
 |---|------|----------------|
@@ -44,7 +44,7 @@ Run: `demos/run-demo<N>.sh`
 
 ## chibicc-Inspired Subset Tests (5/5)
 
-Simplified tests based on chibicc patterns using only cc24-supported
+Simplified tests based on chibicc patterns using only tc24r-supported
 features. Located in `tests/chibicc-subset/`.
 
 | Test | Features Verified |

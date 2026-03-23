@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Run all chibicc-subset tests through cc24 -> cor24-run pipeline.
+# Run all chibicc-subset tests through tc24r -> cor24-run pipeline.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-CC24="$ROOT_DIR/components/cli/target/release/cc24"
+CC24="$ROOT_DIR/components/cli/target/release/tc24r"
 INCLUDE_DIR="$ROOT_DIR/include"
 SUBSET_DIR="$ROOT_DIR/tests/chibicc-subset"
 

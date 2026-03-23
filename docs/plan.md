@@ -1,4 +1,4 @@
-# cc24 Future Plan
+# tc24r Future Plan
 
 Planned features and improvements, roughly in priority order.
 
@@ -125,25 +125,24 @@ would require:
 
 This is a large effort and low priority compared to language features.
 
-## Rename: cc24 -> tc24r
+## Rename: cc24 -> tc24r (In Progress)
 
-The project will be renamed from `cc24` to `tc24r` (Tiny C-compiler for COR24
+The project is being renamed from `cc24` to `tc24r` (Tiny C-compiler for COR24
 in Rust). This is part of a series of small toolchain projects:
 
 - **tc24r** -- Tiny C-compiler for COR24 in Rust
 - **tml24** -- Tiny Macro Lisp for COR24
 
-### Rename scope
+### Rename status
 
-- GitHub repository URL (user renames first, then provides new URL)
-- All Cargo crate names (`cc24-*` -> `tc24r-*`)
-- Binary name (`cc24` -> `tc24r`)
-- Documentation references, README, and license headers
-- Build scripts, CI configuration, and test fixtures
-- Internal module paths and imports
-
-The GitHub rename will happen first. Once the new URL is confirmed, all crate
-names, docs, and scripts will be updated in a single coordinated pass.
+- [x] GitHub repository URL (now tc24r)
+- [x] Documentation references, README title and descriptions
+- [x] Shell scripts (binary path variables, echo messages)
+- [x] Header file comments
+- [ ] All Cargo crate names (`cc24-*` -> `tc24r-*`)
+- [ ] Binary name in Cargo.toml (`cc24` -> `tc24r`)
+- [ ] Internal module paths and imports
+- [ ] reg-rs test names (cc24-demo* -- would break reg-rs baselines)
 
 ## Diagnostics
 

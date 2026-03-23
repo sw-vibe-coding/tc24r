@@ -1,6 +1,6 @@
-# cc24 Language Reference
+# tc24r Language Reference
 
-Quick reference for the C subset supported by cc24, targeting the COR24 architecture.
+Quick reference for the C subset supported by tc24r, targeting the COR24 architecture.
 
 ## Types
 
@@ -393,7 +393,7 @@ asm("ei");
 ## CLI Usage
 
 ```
-cc24 <input.c> [-o output.s] [-I dir]
+tc24r <input.c> [-o output.s] [-I dir]
 ```
 
 - `<input.c>` -- C source file to compile
