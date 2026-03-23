@@ -17,13 +17,13 @@ pub struct GlobalDecl {
     pub init: Option<Expr>,
 }
 
-/// A function definition.
+/// A function definition or prototype.
 #[derive(Debug)]
 pub struct Function {
     pub name: String,
     pub return_ty: Type,
     pub params: Vec<Param>,
-    pub body: Block,
+    pub body: Option<Block>,
     pub span: Span,
     pub is_interrupt: bool,
 }

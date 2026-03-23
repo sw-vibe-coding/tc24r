@@ -26,6 +26,9 @@ impl Codegen {
         emit(&mut self.state, "");
         emit_start(&mut self.state);
         for func in &program.functions {
+            if func.body.is_none() {
+                continue; // skip prototypes
+            }
             emit(&mut self.state, "");
             gen_function(&mut self.state, func);
         }

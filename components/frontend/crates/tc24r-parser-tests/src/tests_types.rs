@@ -9,7 +9,7 @@ fn parse_for_loop() {
     let program =
         parse_source("int main() { int s = 0; for (int i = 0; i < 10; i = i + 1) { s = s + i; } }");
     assert!(matches!(
-        &program.functions[0].body.stmts[1],
+        &program.functions[0].body.as_ref().unwrap().stmts[1],
         Stmt::For { .. }
     ));
 }
@@ -17,7 +17,7 @@ fn parse_for_loop() {
 #[test]
 fn parse_pointer_decl() {
     let program = parse_source("int main() { int *p; return 0; }");
-    let stmts = &program.functions[0].body.stmts;
+    let stmts = &program.functions[0].body.as_ref().unwrap().stmts;
     assert!(matches!(
         &stmts[0],
         Stmt::LocalDecl {
@@ -30,7 +30,7 @@ fn parse_pointer_decl() {
 #[test]
 fn parse_addr_of_and_deref() {
     let program = parse_source("int main() { int x = 42; int *p = &x; return *p; }");
-    let stmts = &program.functions[0].body.stmts;
+    let stmts = &program.functions[0].body.as_ref().unwrap().stmts;
     assert_eq!(stmts.len(), 3);
     // p = &x
     assert!(matches!(
@@ -48,7 +48,7 @@ fn parse_addr_of_and_deref() {
 #[test]
 fn parse_char_local() {
     let program = parse_source("int main() { char c = 65; return c; }");
-    let stmts = &program.functions[0].body.stmts;
+    let stmts = &program.functions[0].body.as_ref().unwrap().stmts;
     assert!(matches!(&stmts[0], Stmt::LocalDecl { ty: Type::Char, .. }));
 }
 
@@ -57,7 +57,7 @@ fn parse_multi_decl() {
     // Regression test: multi-declaration must NOT put semicolon
     // expect inside parse_one_declarator (would fail on comma).
     let program = parse_source("int main() { int x = 1, y = 2; return x + y; }");
-    let stmts = &program.functions[0].body.stmts;
+    let stmts = &program.functions[0].body.as_ref().unwrap().stmts;
     // Multi-decl wraps in Stmt::Block
     assert!(matches!(&stmts[0], Stmt::Block(_)));
 }
@@ -65,7 +65,7 @@ fn parse_multi_decl() {
 #[test]
 fn parse_array_decl() {
     let program = parse_source("int main() { int a[3]; return 0; }");
-    let stmts = &program.functions[0].body.stmts;
+    let stmts = &program.functions[0].body.as_ref().unwrap().stmts;
     assert!(matches!(
         &stmts[0],
         Stmt::LocalDecl {
@@ -78,7 +78,7 @@ fn parse_array_decl() {
 #[test]
 fn parse_array_index() {
     let program = parse_source("int main() { int a[2]; a[0] = 5; return a[1]; }");
-    let stmts = &program.functions[0].body.stmts;
+    let stmts = &program.functions[0].body.as_ref().unwrap().stmts;
     assert!(matches!(&stmts[1], Stmt::Expr(Expr::DerefAssign { .. })));
     assert!(matches!(&stmts[2], Stmt::Return(Expr::Deref(_))));
 }

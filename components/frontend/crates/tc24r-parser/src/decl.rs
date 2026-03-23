@@ -133,7 +133,12 @@ fn parse_function(ts: &mut TokenStream, is_interrupt: bool) -> Result<Function, 
     ts.expect(TokenKind::LParen)?;
     let params = parse_params(ts)?;
     ts.expect(TokenKind::RParen)?;
-    let body = parse_block(ts)?;
+    // Prototype: int foo(int n); — no body
+    let body = if ts.eat(TokenKind::Semicolon) {
+        None
+    } else {
+        Some(parse_block(ts)?)
+    };
     Ok(Function {
         name,
         return_ty,
@@ -149,9 +154,19 @@ fn parse_params(ts: &mut TokenStream) -> Result<Vec<Param>, CompileError> {
     if ts.check(&TokenKind::RParen) {
         return Ok(params);
     }
+    // (void) means no parameters
+    if ts.check(&TokenKind::Void) && matches!(ts.lookahead(1), TokenKind::RParen) {
+        ts.advance();
+        return Ok(params);
+    }
     loop {
         let ty = parse_type(ts)?;
-        let name = ts.expect_ident()?;
+        // Unnamed parameters allowed in prototypes: int foo(int, int);
+        let name = if ts.check(&TokenKind::Comma) || ts.check(&TokenKind::RParen) {
+            String::new()
+        } else {
+            ts.expect_ident()?
+        };
         params.push(Param { name, ty });
         if !ts.eat(TokenKind::Comma) {
             break;

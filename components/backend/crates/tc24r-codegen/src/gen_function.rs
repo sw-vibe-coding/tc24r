@@ -13,7 +13,8 @@ pub fn gen_function(state: &mut CodegenState, func: &Function) {
     state.locals_size = 0;
     state.return_label = new_label(state);
 
-    collect_locals_block(state, &func.body.stmts);
+    let body = func.body.as_ref().expect("codegen called on prototype");
+    collect_locals_block(state, &body.stmts);
     for (i, param) in func.params.iter().enumerate() {
         let offset = 9 + (i as i32) * 3;
         state.locals.insert(param.name.clone(), offset);
@@ -32,7 +33,7 @@ pub fn gen_function(state: &mut CodegenState, func: &Function) {
         emit_prologue(state);
     }
 
-    for stmt in &func.body.stmts {
+    for stmt in &body.stmts {
         gen_stmt(stmt, state);
     }
 
