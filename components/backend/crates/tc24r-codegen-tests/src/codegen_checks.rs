@@ -1,6 +1,6 @@
 //! Structural checks on codegen output (non-golden-file tests).
 
-use tc24r_test_compile::compile;
+use tc24r_test_compile::{compile, compile_pp};
 
 #[test]
 fn codegen_emits_start() {
@@ -147,4 +147,99 @@ fn branch_nested_if_else_correct() {
     // Should contain both short conditional and unconditional branches
     assert!(output.contains("cls") || output.contains("ceq"), "should have comparison");
     assert!(output.contains("bra") || output.contains("jmp"), "should have unconditional branch");
+}
+
+// --- Bug regression tests ---
+
+#[test]
+fn bug001_nested_func_macro_expanded() {
+    // BUG-001: #define NIL_VAL MAKE_SYMBOL(0) should expand the inner macro
+    let src = r#"
+        #define MAKE_SYMBOL(idx) (((idx) << 2) | 2)
+        #define NIL_VAL MAKE_SYMBOL(0)
+        int main() { int x = NIL_VAL; return x; }
+    "#;
+    let output = compile_pp(src);
+    // Should NOT call MAKE_SYMBOL as a function
+    assert!(!output.contains("_MAKE_SYMBOL"), "macro should be expanded, not called as function");
+    // Should contain shift and or (the expanded expression)
+    assert!(output.contains("shl"), "expanded macro should produce shift");
+    assert!(output.contains("or"), "expanded macro should produce or");
+}
+
+#[test]
+fn bug002_two_level_define_no_panic() {
+    // BUG-002: two-level #define should not panic
+    let src = r#"
+        #define TAG_SYMBOL 2
+        #define NIL_VAL ((0 << 2) | TAG_SYMBOL)
+        int arr[10];
+        int main() { arr[0] = NIL_VAL; return arr[0]; }
+    "#;
+    // Should compile without panic — the assertion is that compile_pp() returns
+    let _output = compile_pp(src);
+}
+
+#[test]
+fn bug003_nested_array_index() {
+    // BUG-003: pool[offsets[i]] should parse and compile
+    let src = r#"
+        char pool[100];
+        int offsets[10];
+        char *get(int i) { return &pool[offsets[i]]; }
+        int main() { return 0; }
+    "#;
+    let output = compile(src);
+    assert!(output.contains("_get:"), "function should be generated");
+}
+
+#[test]
+fn bug005_global_array_full_size() {
+    // BUG-005: int arr[10] should allocate 10 words, not 1
+    let src = "int arr[10]; int main() { return 0; }";
+    let output = compile(src);
+    let word_count = output.matches(".word").count();
+    assert!(word_count >= 10, "int arr[10] should emit at least 10 .word directives, got {word_count}");
+}
+
+#[test]
+fn bug006_global_char_array_decay() {
+    // BUG-006: global char array should decay to address, not dereference
+    let src = r#"
+        char pool[100];
+        int main() { pool[0] = 65; return 0; }
+    "#;
+    let output = compile(src);
+    // Should use la r0,_pool (address), not la r1,_pool; lw r0,0(r1) (deref)
+    assert!(output.contains("la      r0,_pool"), "global array should decay to la r0 (address)");
+}
+
+#[test]
+fn bug007_array_store_global_index() {
+    // BUG-007: offsets[idx] = counter where both are globals should not clobber address
+    let src = r#"
+        int offsets[10];
+        int counter;
+        void do_store() {
+            int idx = counter;
+            offsets[idx] = counter;
+            counter = counter + 1;
+        }
+        int main() { counter = 0; do_store(); do_store(); return offsets[1]; }
+    "#;
+    let output = compile(src);
+    // Should compile — the key test is that it generates a push/pop to preserve
+    // the target address when loading a global RHS value
+    assert!(output.contains("_do_store:"), "do_store should be generated");
+    // The do_store function should use push to save the computed address
+    let do_store_section: String = output
+        .lines()
+        .skip_while(|l| !l.contains("_do_store:"))
+        .take_while(|l| !l.contains("jmp     (r1)"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(
+        do_store_section.contains("push"),
+        "do_store should push to preserve address when loading global RHS"
+    );
 }

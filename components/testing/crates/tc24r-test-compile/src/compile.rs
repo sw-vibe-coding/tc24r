@@ -6,3 +6,9 @@ pub fn compile(source: &str) -> String {
     let program = tc24r_parser::parse(tokens).expect("parser failed");
     tc24r_codegen::Codegen::new().generate(&program)
 }
+
+/// Compile C source with preprocessing to COR24 assembly.
+pub fn compile_pp(source: &str) -> String {
+    let preprocessed = tc24r_preprocess::preprocess(source, None, &[]);
+    compile(&preprocessed)
+}

@@ -2,4 +2,4 @@
 
 mod compile;
 
-pub use compile::compile;
+pub use compile::{compile, compile_pp};
