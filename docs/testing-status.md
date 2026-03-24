@@ -1,19 +1,19 @@
 # Testing Status
 
-Last updated: 2026-03-22
+Last updated: 2026-03-23
 
 ## Summary
 
 | Test Suite | Pass | Total | Coverage | Notes |
 |-----------|------|-------|----------|-------|
-| tc24r demos | 45 | 45 | 100% | End-to-end compiler + emulator |
-| reg-rs regressions | 25 | 25 | 100% | Output stability checks |
+| tc24r demos | 46 | 46 | 100% | End-to-end compiler + emulator |
+| reg-rs regressions | 26 | 26 | 100% | Output stability checks |
 | chibicc-subset | 5 | 5 | 100% | Curated subsets of chibicc tests |
 | chibicc full | 6 | 41 | 14% | const, decl, enum, generic, pragma-once, stdhdr |
 | beej-c-guide | 4 | 11 | 36% | hello_world, functions, pointers, typedef |
 | bgc examples | 41 | 117 | 35% | With stdio/stdlib/string/stdbool stubs |
 
-## tc24r Demos (45/45)
+## tc24r Demos (46/46)
 
 | # | Demo | Features Tested |
 |---|------|----------------|
@@ -62,6 +62,7 @@ Last updated: 2026-03-22
 | 43 | demo43.c | Lisp cons cells (struct pointer return, car/cdr chains) |
 | 44 | demo44.c | Lisp Phase 1: constructors, predicates, S-expr printer |
 | 45 | demo45.c | Lisp eval: reader + eval + builtins — (+ 40 2) => 42 |
+| 46 | demo46.c | unsigned int: signed/unsigned shifts (sra/srl), comparisons (cls/clu) |
 
 Run: `demos/run-demo<N>.sh`
 
@@ -178,7 +179,7 @@ Run: `scripts/run-chibicc-tests.sh`
 - Function prototypes (forward declarations)
 - union (shared memory layout)
 - Conditional compilation (#if, #ifdef, #ifndef, #elif, #else, #endif, #undef)
-- Type modifiers: long, short, signed, unsigned (→ int on COR24)
+- Type modifiers: long, short, signed (→ int); unsigned (→ unsigned int with srl/clu)
 - inline keyword (accepted, ignored)
 - Escape sequences: \v, \f, \e
 - Unknown # directives silently skipped (#line, # nnn "file")

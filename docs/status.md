@@ -1,12 +1,12 @@
 # tc24r Project Status
 
-Last updated: 2026-03-22
+Last updated: 2026-03-23
 
 ## Current State
 
 The compiler is functional and can compile real C programs to COR24 assembly
 that runs on hardware (COR24-TB FPGA board) and the cor24-rs emulator.
-45 working demos exercise all implemented features.
+46 working demos exercise all implemented features.
 
 ## Component Architecture
 
