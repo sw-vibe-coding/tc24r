@@ -297,6 +297,31 @@ to calculate words per element using `ceil(elem.size() / 3)`.
 
 ---
 
+### BUG-012: `(ptr + offset)->member` fails to parse
+
+**Filed by:** p24p
+**Fixed:** 2026-03-25
+**Component:** `tc24r-parser` (expr.rs)
+
+Parenthesized pointer arithmetic followed by arrow access failed with
+"expected Semicolon, got Arrow".
+
+```c
+struct pair *arr = (struct pair *)malloc(6);
+(arr + 1)->key = 30;   // ERROR: expected Semicolon, got Arrow
+```
+
+**Root cause:** `parse_primary()` had three return paths for parenthesized
+expressions (statement expressions, casts, and regular parenthesized
+expressions) that all returned without calling `parse_postfix_chain()`.
+The identifier path correctly called it, but the paren paths bypassed
+it, leaving `->`, `.`, and `[` tokens unconsumed.
+
+**Fix:** Added `parse_postfix_chain()` calls to all three parenthesized
+expression return paths in `parse_primary()`.
+
+---
+
 ## Open
 
 (none)

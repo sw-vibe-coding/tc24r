@@ -111,21 +111,22 @@ fn parse_primary(ts: &mut TokenStream) -> Result<Expr, CompileError> {
         if ts.check(&TokenKind::LBrace) {
             let block = parse_block(ts)?;
             ts.expect(TokenKind::RParen)?;
-            return Ok(Expr::StmtExpr(block));
+            return parse_postfix_chain(ts, Expr::StmtExpr(block));
         }
         // Cast: (type)expr  vs  parenthesized: (expr)
         if is_type_start(ts) {
             let ty = parse_type(ts)?;
             ts.expect(TokenKind::RParen)?;
             let operand = parse_unary(ts)?;
-            return Ok(Expr::Cast {
+            let cast = Expr::Cast {
                 ty,
                 expr: Box::new(operand),
-            });
+            };
+            return parse_postfix_chain(ts, cast);
         }
         let expr = parse_expr(ts)?;
         ts.expect(TokenKind::RParen)?;
-        return Ok(expr);
+        return parse_postfix_chain(ts, expr);
     }
     if let TokenKind::IntLit(_) = &ts.peek().kind {
         let TokenKind::IntLit(val) = ts.advance().kind else {

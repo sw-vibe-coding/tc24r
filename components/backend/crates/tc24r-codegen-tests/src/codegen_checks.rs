@@ -215,6 +215,28 @@ fn bug006_global_char_array_decay() {
 }
 
 #[test]
+fn bug012_paren_ptr_arrow_parse() {
+    // BUG-012: (ptr + offset)->member fails to parse
+    // "expected Semicolon, got Arrow"
+    let src = r#"
+        struct pair { int key; int val; };
+        int main() {
+            struct pair *arr;
+            arr = (struct pair *)malloc(2 * sizeof(struct pair));
+            arr->key = 10;
+            arr->val = 20;
+            (arr + 1)->key = 30;
+            (arr + 1)->val = 40;
+            return (arr + 1)->key + arr->val;
+        }
+    "#;
+    let output = compile(src);
+    assert!(output.contains("_main:"), "main should be generated");
+    assert!(output.contains("sw"), "should store struct members");
+    assert!(output.contains("lw"), "should load struct members");
+}
+
+#[test]
 fn bug011_global_struct_array_parse() {
     // BUG-011: global struct array declaration fails to parse
     // "expected Semicolon, got LBracket" for struct symbol symtab[8]
