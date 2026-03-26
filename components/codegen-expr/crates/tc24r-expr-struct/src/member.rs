@@ -1,6 +1,6 @@
 //! Struct member access and assignment.
 
-use tc24r_ast::{Expr, Type};
+use tc24r_ast::{BinOp, Expr, Type};
 use tc24r_codegen_state::CodegenState;
 use tc24r_emit_core::load_immediate;
 use tc24r_emit_macros::emit;
@@ -122,6 +122,16 @@ fn object_type(state: &CodegenState, object: &Expr) -> Type {
             let struct_ty = object_type(state, obj);
             if let Some(m) = struct_ty.find_member(member) {
                 m.ty.clone()
+            } else {
+                Type::Int
+            }
+        }
+        Expr::BinOp { op: BinOp::Add, lhs, .. }
+        | Expr::BinOp { op: BinOp::Sub, lhs, .. } => {
+            // Pointer arithmetic preserves pointer type (e.g. arr + i)
+            let lhs_ty = object_type(state, lhs);
+            if matches!(lhs_ty, Type::Ptr(_)) {
+                lhs_ty
             } else {
                 Type::Int
             }

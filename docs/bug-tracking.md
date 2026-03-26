@@ -239,6 +239,33 @@ The tc24r prologue handles large frames correctly (`sub sp,N` for N > 127).
 
 ---
 
+### BUG-010: `ptr[i].member` panics — struct pointer array indexing
+
+**Filed by:** p24p
+**Fixed:** 2026-03-25
+**Component:** `tc24r-expr-struct` (member.rs)
+
+Array subscript on a struct pointer followed by member access panicked
+because `object_type()` resolved `arr[i]` to `Int` instead of the struct
+type. The parser desugars `arr[i]` into `*(arr + i)`, and `object_type()`
+lacked a `BinOp` case for pointer arithmetic.
+
+```c
+struct pair { int key; int val; };
+struct pair *arr = (struct pair *)malloc(6);
+arr[0].key = 10;   // PANIC: unknown struct member 'key' in type Int
+```
+
+**Root cause:** `object_type()` only handled `Ident`, `Deref`, `Call`,
+and `MemberAccess`. When it recursed into `Deref(BinOp(Add, ptr, i))`,
+the `BinOp` fell through to the default `_ => Type::Int` case.
+
+**Fix:** Added `BinOp::Add` / `BinOp::Sub` arms to `object_type()` that
+preserve pointer types through pointer arithmetic, matching the existing
+`expr_type()` implementation in `tc24r-type-infer`.
+
+---
+
 ## Open
 
 (none)

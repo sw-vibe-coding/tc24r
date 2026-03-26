@@ -215,6 +215,30 @@ fn bug006_global_char_array_decay() {
 }
 
 #[test]
+fn bug010_ptr_index_member_access() {
+    // BUG-010: ptr[i].member panics — array subscript on struct pointer
+    // resolves to Int instead of the struct type
+    let src = r#"
+        struct pair { int key; int val; };
+        int main() {
+            struct pair *arr;
+            arr = (struct pair *)malloc(2 * sizeof(struct pair));
+            arr[0].key = 10;
+            arr[0].val = 20;
+            arr[1].key = 30;
+            arr[1].val = 40;
+            return arr[0].key + arr[1].val;
+        }
+    "#;
+    let output = compile(src);
+    // Should compile without panicking — key assertion is that compile() returns
+    assert!(output.contains("_main:"), "main should be generated");
+    // Should contain struct member stores (sw) and loads (lw)
+    assert!(output.contains("sw"), "should store struct members");
+    assert!(output.contains("lw"), "should load struct members");
+}
+
+#[test]
 fn bug007_array_store_global_index() {
     // BUG-007: offsets[idx] = counter where both are globals should not clobber address
     let src = r#"
