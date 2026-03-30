@@ -1,3 +1,5 @@
+> **Stabilized.** Active development continues at [sw-embed/sw-cor24-tinyc](https://github.com/sw-embed/sw-cor24-tinyc). Bug fixes here may not yet be reflected in the fork — a commit comparison is pending.
+
 # tc24r -- Tiny C Compiler for the COR24 FPGA Soft CPU
 
 tc24r is an open-source C compiler targeting the **COR24** (C-Oriented RISC, 24-bit) instruction set architecture. COR24 is an FPGA soft CPU designed by [MakerLisp](https://makerlisp.com) for efficient C code execution. The existing MakerLisp C compiler (cc24) is proprietary -- tc24r provides an open-source alternative.
